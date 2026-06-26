@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Erdarbeiten & Bodenmaterial – Normenassistent</title>
+
+<!-- Favicon: Radlader SVG eingebettet als Data-URI -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1c1e'/%3E%3C!-- dirt --%3E%3Cellipse cx='12' cy='50' rx='11' ry='5' fill='%237a5c2e' opacity='.85'/%3E%3Cellipse cx='10' cy='47.5' rx='7' ry='3.5' fill='%239a7040'/%3E%3Cellipse cx='13' cy='45.5' rx='5' ry='2.5' fill='%23b88a50'/%3E%3C!-- bucket --%3E%3Cpath d='M18 28 L7 32 L6 46 L22 46 L24 34 Z' fill='%23c8922a'/%3E%3Cpath d='M6 46 L22 46 L23 43 L7 43 Z' fill='%23a07020'/%3E%3Crect x='7.5' y='46' width='3' height='4' rx='.8' fill='%238a6010'/%3E%3Crect x='12' y='46' width='3' height='4' rx='.8' fill='%238a6010'/%3E%3Crect x='16.5' y='46' width='3' height='4' rx='.8' fill='%238a6010'/%3E%3C!-- arm --%3E%3Cpath d='M22 34 L36 24 L39 28 L24 38 Z' fill='%23e6b04a'/%3E%3Cpath d='M36 24 L41 18 L44 21 L39 28 Z' fill='%23c8922a'/%3E%3C!-- cab --%3E%3Crect x='35' y='22' width='22' height='18' rx='3' fill='%23c8922a'/%3E%3Crect x='37' y='24' width='13' height='9' rx='2' fill='%23b8d8f0' opacity='.75'/%3E%3Cline x1='38.5' y1='25' x2='41' y2='32' stroke='white' stroke-width='1' opacity='.45'/%3E%3C!-- chassis --%3E%3Crect x='32' y='38' width='28' height='6' rx='2' fill='%23a07020'/%3E%3C!-- exhaust --%3E%3Crect x='54' y='13' width='3' height='10' rx='1.5' fill='%23555'/%3E%3Ccircle cx='55.5' cy='12' r='2.5' fill='%23888' opacity='.5'/%3E%3Ccircle cx='57' cy='9' r='1.5' fill='%23aaa' opacity='.3'/%3E%3C!-- front wheel --%3E%3Ccircle cx='39' cy='50' r='7' fill='%23222'/%3E%3Ccircle cx='39' cy='50' r='4.5' fill='%23333'/%3E%3Ccircle cx='39' cy='50' r='2' fill='%23c8922a'/%3E%3C!-- rear wheel --%3E%3Ccircle cx='54' cy='50' r='7' fill='%23222'/%3E%3Ccircle cx='54' cy='50' r='4.5' fill='%23333'/%3E%3Ccircle cx='54' cy='50' r='2' fill='%23c8922a'/%3E%3C/svg%3E">
+
+<!-- Apple Touch Icon für iOS Home-Screen (180×180 via Canvas, eingebettet) -->
+<link rel="apple-touch-icon" id="apple-icon" href="">
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Erdarbeiten%20%26%20Bodenmaterial%22%2C%22short_name%22%3A%22Erdbau%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231a1c1e%22%2C%22theme_color%22%3A%22%23c8922a%22%7D">
+<meta name="theme-color" content="#c8922a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Erdbau">
+
 <style>
   :root {
     --bg: #1a1c1e;
@@ -48,11 +60,11 @@
     z-index: 100;
   }
   .logo {
-    width: 34px; height: 34px;
-    background: var(--accent);
+    width: 44px; height: 34px;
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
+    flex-shrink: 0;
+    overflow: visible;
   }
   .header-title { font-size: 15px; font-weight: 600; letter-spacing: .01em; }
   .header-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
@@ -353,7 +365,55 @@
 <body>
 
 <header>
-  <div class="logo">⛏</div>
+  <div class="logo">
+    <svg width="52" height="34" viewBox="0 0 52 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Dirt/earth pile being pushed -->
+      <ellipse cx="9" cy="27" rx="9" ry="4.5" fill="#7a5c2e" opacity="0.85"/>
+      <ellipse cx="7" cy="25.5" rx="6" ry="3" fill="#9a7040"/>
+      <ellipse cx="10" cy="24.5" rx="4" ry="2" fill="#b88a50"/>
+
+      <!-- Bucket / schaufel -->
+      <path d="M14 16 L6 19 L5 26 L18 26 L19 20 Z" fill="#c8922a"/>
+      <path d="M5 26 L18 26 L19 24 L6 24 Z" fill="#a07020"/>
+      <!-- bucket teeth -->
+      <rect x="6"  y="26" width="2.2" height="3" rx="0.5" fill="#8a6010"/>
+      <rect x="9.5" y="26" width="2.2" height="3" rx="0.5" fill="#8a6010"/>
+      <rect x="13" y="26" width="2.2" height="3" rx="0.5" fill="#8a6010"/>
+
+      <!-- Lift arm -->
+      <path d="M18 20 L28 14 L30 17 L19 23 Z" fill="#e6b04a"/>
+      <path d="M28 14 L32 10 L34 12 L30 17 Z" fill="#c8922a"/>
+
+      <!-- Cab body -->
+      <rect x="28" y="14" width="16" height="14" rx="2" fill="#c8922a"/>
+      <!-- Cab window -->
+      <rect x="30" y="15.5" width="10" height="7" rx="1.5" fill="#b8d8f0" opacity="0.75"/>
+      <!-- window shine -->
+      <line x1="31" y1="16.5" x2="33" y2="21" stroke="white" stroke-width="0.8" opacity="0.5"/>
+
+      <!-- Chassis / lower body -->
+      <rect x="26" y="26" width="22" height="4" rx="1.5" fill="#a07020"/>
+
+      <!-- Exhaust pipe -->
+      <rect x="42" y="10" width="2" height="6" rx="1" fill="#555"/>
+      <!-- smoke puff -->
+      <circle cx="43" cy="9" r="1.5" fill="#888" opacity="0.5"/>
+      <circle cx="44.5" cy="7.5" r="1" fill="#aaa" opacity="0.35"/>
+
+      <!-- Front wheel -->
+      <circle cx="32" cy="30" r="4.5" fill="#2a2a2a"/>
+      <circle cx="32" cy="30" r="2.8" fill="#3a3a3a"/>
+      <circle cx="32" cy="30" r="1.2" fill="#c8922a"/>
+
+      <!-- Rear wheel -->
+      <circle cx="44" cy="30" r="4.5" fill="#2a2a2a"/>
+      <circle cx="44" cy="30" r="2.8" fill="#3a3a3a"/>
+      <circle cx="44" cy="30" r="1.2" fill="#c8922a"/>
+
+      <!-- Ground shadow -->
+      <ellipse cx="38" cy="34" rx="14" ry="1.5" fill="#000" opacity="0.18"/>
+    </svg>
+  </div>
   <div>
     <div class="header-title">Erdarbeiten & Bodenmaterial</div>
     <div class="header-sub">Normenassistent für Bauleiter | VOB/C · DIN 18300 · BBodSchG</div>
@@ -1640,6 +1700,122 @@ ______________________
   }
 
   updateProgress();
+
+  // Apple Touch Icon: Radlader auf 180×180 Canvas zeichnen
+  (function() {
+    const c = document.createElement('canvas');
+    c.width = 180; c.height = 180;
+    const cx = c.getContext('2d');
+
+    // Hintergrund mit abgerundeten Ecken
+    const r = 36;
+    cx.beginPath();
+    cx.moveTo(r, 0); cx.lineTo(180-r, 0);
+    cx.arcTo(180, 0, 180, r, r);
+    cx.lineTo(180, 180-r);
+    cx.arcTo(180, 180, 180-r, 180, r);
+    cx.lineTo(r, 180);
+    cx.arcTo(0, 180, 0, 180-r, r);
+    cx.lineTo(0, r);
+    cx.arcTo(0, 0, r, 0, r);
+    cx.closePath();
+    cx.fillStyle = '#1a1c1e';
+    cx.fill();
+
+    // Erdmaterial / Haufen
+    cx.fillStyle = '#7a5c2e';
+    cx.beginPath(); cx.ellipse(34, 138, 30, 13, 0, 0, Math.PI*2); cx.fill();
+    cx.fillStyle = '#9a7040';
+    cx.beginPath(); cx.ellipse(30, 131, 20, 9, 0, 0, Math.PI*2); cx.fill();
+    cx.fillStyle = '#b88a50';
+    cx.beginPath(); cx.ellipse(37, 126, 13, 6, 0, 0, Math.PI*2); cx.fill();
+
+    // Schaufel / Bucket
+    cx.fillStyle = '#c8922a';
+    cx.beginPath();
+    cx.moveTo(52, 78); cx.lineTo(20, 88); cx.lineTo(18, 130); cx.lineTo(62, 130); cx.lineTo(66, 96); cx.closePath();
+    cx.fill();
+    cx.fillStyle = '#a07020';
+    cx.beginPath();
+    cx.moveTo(18, 130); cx.lineTo(62, 130); cx.lineTo(65, 122); cx.lineTo(19, 122); cx.closePath();
+    cx.fill();
+    // Zähne
+    cx.fillStyle = '#8a6010';
+    [[21,130],[33,130],[45,130]].forEach(([x,y]) => {
+      cx.beginPath(); cx.roundRect(x, y, 8, 12, 2); cx.fill();
+    });
+
+    // Hubarm
+    cx.fillStyle = '#e6b04a';
+    cx.beginPath();
+    cx.moveTo(62, 96); cx.lineTo(100, 66); cx.lineTo(108, 76); cx.lineTo(68, 108); cx.closePath();
+    cx.fill();
+    cx.fillStyle = '#c8922a';
+    cx.beginPath();
+    cx.moveTo(100, 66); cx.lineTo(114, 50); cx.lineTo(122, 58); cx.lineTo(108, 76); cx.closePath();
+    cx.fill();
+
+    // Kabine
+    cx.fillStyle = '#c8922a';
+    cx.beginPath(); cx.roundRect(98, 60, 66, 52, 8); cx.fill();
+    // Fenster
+    cx.fillStyle = 'rgba(184,216,240,0.78)';
+    cx.beginPath(); cx.roundRect(104, 65, 38, 26, 5); cx.fill();
+    // Scheibenglanz
+    cx.strokeStyle = 'rgba(255,255,255,0.4)';
+    cx.lineWidth = 2.5;
+    cx.beginPath(); cx.moveTo(108, 68); cx.lineTo(115, 88); cx.stroke();
+
+    // Abgasrohr
+    cx.fillStyle = '#555';
+    cx.beginPath(); cx.roundRect(152, 36, 8, 28, 4); cx.fill();
+    cx.fillStyle = 'rgba(136,136,136,0.5)';
+    cx.beginPath(); cx.arc(156, 34, 7, 0, Math.PI*2); cx.fill();
+    cx.fillStyle = 'rgba(170,170,170,0.3)';
+    cx.beginPath(); cx.arc(160, 26, 5, 0, Math.PI*2); cx.fill();
+
+    // Chassis
+    cx.fillStyle = '#a07020';
+    cx.beginPath(); cx.roundRect(90, 110, 82, 18, 5); cx.fill();
+
+    // Vorderrad
+    cx.fillStyle = '#222';
+    cx.beginPath(); cx.arc(110, 144, 20, 0, Math.PI*2); cx.fill();
+    cx.fillStyle = '#333';
+    cx.beginPath(); cx.arc(110, 144, 13, 0, Math.PI*2); cx.fill();
+    cx.fillStyle = '#c8922a';
+    cx.beginPath(); cx.arc(110, 144, 5, 0, Math.PI*2); cx.fill();
+    // Speichen
+    cx.strokeStyle = '#555'; cx.lineWidth = 2;
+    for(let a=0; a<6; a++) {
+      const angle = a * Math.PI / 3;
+      cx.beginPath();
+      cx.moveTo(110 + Math.cos(angle)*6, 144 + Math.sin(angle)*6);
+      cx.lineTo(110 + Math.cos(angle)*12, 144 + Math.sin(angle)*12);
+      cx.stroke();
+    }
+
+    // Hinterrad
+    cx.fillStyle = '#222';
+    cx.beginPath(); cx.arc(152, 144, 20, 0, Math.PI*2); cx.fill();
+    cx.fillStyle = '#333';
+    cx.beginPath(); cx.arc(152, 144, 13, 0, Math.PI*2); cx.fill();
+    cx.fillStyle = '#c8922a';
+    cx.beginPath(); cx.arc(152, 144, 5, 0, Math.PI*2); cx.fill();
+    for(let a=0; a<6; a++) {
+      const angle = a * Math.PI / 3;
+      cx.beginPath();
+      cx.moveTo(152 + Math.cos(angle)*6, 144 + Math.sin(angle)*6);
+      cx.lineTo(152 + Math.cos(angle)*12, 144 + Math.sin(angle)*12);
+      cx.stroke();
+    }
+
+    // Bodenschatten
+    cx.fillStyle = 'rgba(0,0,0,0.18)';
+    cx.beginPath(); cx.ellipse(130, 165, 50, 6, 0, 0, Math.PI*2); cx.fill();
+
+    document.getElementById('apple-icon').href = c.toDataURL('image/png');
+  })();
 </script>
 </body>
 </html>
