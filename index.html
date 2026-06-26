@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Erdarbeiten & Bodenmaterial – Normenassistent</title>
+<style>
+  :root {
+    --bg: #1a1c1e;
+    --surface: #23262b;
+    --surface2: #2c3036;
+    --border: #363b42;
+    --accent: #c8922a;
+    --accent2: #e6b04a;
+    --accent-dim: rgba(200,146,42,0.13);
+    --text: #e8e4dc;
+    --text-muted: #8d9099;
+    --text-dim: #b8b2a8;
+    --green: #5aad7a;
+    --red: #c85a5a;
+    --blue: #4a8fc8;
+    --warn: #c89a2a;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 58px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    width: 34px; height: 34px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .header-title { font-size: 15px; font-weight: 600; letter-spacing: .01em; }
+  .header-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .header-badge {
+    margin-left: auto;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    color: var(--accent2);
+    font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 20px;
+    letter-spacing: .04em;
+  }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; min-height: calc(100vh - 58px); }
+
+  /* ── SIDEBAR ── */
+  nav {
+    width: 230px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 16px 10px;
+    position: sticky; top: 58px;
+    height: calc(100vh - 58px);
+    overflow-y: auto;
+  }
+  .nav-group { margin-bottom: 6px; }
+  .nav-group-label {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 8px 10px 4px;
+  }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 8px 10px;
+    border: none; background: transparent;
+    color: var(--text-dim); cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px; text-align: left;
+    transition: all .15s;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: var(--accent-dim); color: var(--accent2); font-weight: 600; }
+  .nav-btn .ico { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+  .nav-divider { border: none; border-top: 1px solid var(--border); margin: 8px 10px; }
+
+  /* ── MAIN ── */
+  main { flex: 1; padding: 28px 32px; max-width: 960px; }
+
+  /* ── PANELS ── */
+  .panel { display: none; animation: fadeIn .2s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+  .panel-desc { color: var(--text-muted); font-size: 13.5px; margin-bottom: 24px; line-height: 1.5; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .badge {
+    font-size: 10px; font-weight: 600;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 2px 7px; border-radius: 20px;
+    letter-spacing: .04em;
+  }
+
+  /* ── NORM TABLE ── */
+  .norm-row {
+    display: grid; grid-template-columns: 130px 1fr auto;
+    gap: 10px; align-items: start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  .norm-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .norm-id { font-weight: 700; color: var(--accent2); font-size: 13px; }
+  .norm-text { color: var(--text-dim); }
+  .norm-tag {
+    font-size: 10px; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .tag-vob { background: rgba(74,143,200,.18); color: var(--blue); border: 1px solid rgba(74,143,200,.4); }
+  .tag-geo { background: rgba(90,173,122,.15); color: var(--green); border: 1px solid rgba(90,173,122,.35); }
+  .tag-law { background: rgba(200,146,42,.15); color: var(--accent2); border: 1px solid rgba(200,146,42,.3); }
+  .tag-env { background: rgba(200,90,90,.15); color: var(--red); border: 1px solid rgba(200,90,90,.3); }
+
+  /* ── HOMOGENBEREICHE ── */
+  .hb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 680px) { .hb-grid { grid-template-columns: 1fr; } }
+  .hb-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+  }
+  .hb-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .hb-body { font-size: 12.5px; color: var(--text-dim); line-height: 1.5; }
+  .hb-kw { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+  .kw-chip {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 10.5px; padding: 1px 7px; border-radius: 10px; margin: 2px 2px 0 0;
+  }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px; color: var(--text-dim);
+    cursor: pointer; transition: color .15s;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li:hover { color: var(--text); }
+  .checklist li.checked { color: var(--green); }
+  .check-box {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px; flex-shrink: 0; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; transition: all .15s;
+  }
+  .checked .check-box { background: var(--green); border-color: var(--green); color: #fff; }
+  .check-ref { font-size: 11px; color: var(--text-muted); margin-left: auto; white-space: nowrap; padding-left: 8px; flex-shrink: 0; }
+  .checked .check-ref { color: var(--green); }
+  .checklist-controls {
+    display: flex; gap: 8px; margin-bottom: 14px;
+    font-size: 12px;
+  }
+  .ctrl-btn {
+    padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text-muted); cursor: pointer;
+    font-size: 12px; transition: all .15s;
+  }
+  .ctrl-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .progress-bar-wrap { height: 4px; background: var(--surface2); border-radius: 2px; margin-bottom: 16px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
+
+  /* ── AUSSCHREIBUNG ── */
+  .stlb-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stlb-tab {
+    padding: 6px 16px; border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text-muted);
+    font-size: 12.5px; cursor: pointer; transition: all .15s;
+  }
+  .stlb-tab:hover { border-color: var(--accent); color: var(--accent2); }
+  .stlb-tab.active { background: var(--accent); border-color: var(--accent); color: #1a1200; font-weight: 700; }
+  .stlb-block { display: none; }
+  .stlb-block.active { display: block; }
+  .stlb-pos {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .stlb-pos-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,.03);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background .15s;
+  }
+  .stlb-pos-head:hover { background: rgba(255,255,255,.06); }
+  .oz { font-size: 11px; font-weight: 700; color: var(--accent); font-family: monospace; }
+  .pos-title { font-size: 13.5px; font-weight: 600; color: var(--text); flex: 1; }
+  .pos-unit { font-size: 11px; color: var(--text-muted); }
+  .pos-toggle { font-size: 12px; color: var(--text-muted); }
+  .stlb-pos-body {
+    padding: 14px 16px;
+    font-size: 13px; color: var(--text-dim); line-height: 1.65;
+    display: none;
+  }
+  .stlb-pos-body.open { display: block; }
+  .stlb-pos-body pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px; margin-top: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px; color: var(--text-dim);
+    white-space: pre-wrap; line-height: 1.6;
+  }
+  .copy-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 10px; padding: 5px 12px;
+    border-radius: 20px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-muted);
+    font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  /* ── BODENSCHUTZ ── */
+  .law-section {
+    border-left: 3px solid var(--accent);
+    padding-left: 16px; margin-bottom: 20px;
+  }
+  .law-para { font-size: 13px; font-weight: 700; color: var(--accent2); margin-bottom: 4px; }
+  .law-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .law-body { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+  .law-body ul { padding-left: 18px; margin-top: 6px; }
+  .law-body ul li { margin-bottom: 3px; }
+  .alert-box {
+    background: rgba(200,146,42,.1);
+    border: 1px solid rgba(200,146,42,.3);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px; color: var(--accent2);
+    margin-top: 10px; line-height: 1.55;
+  }
+  .alert-box.info { background: rgba(74,143,200,.1); border-color: rgba(74,143,200,.3); color: var(--blue); }
+  .alert-box.danger { background: rgba(200,90,90,.1); border-color: rgba(200,90,90,.3); color: var(--red); }
+
+  /* ── FLOW ── */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex; gap: 16px; position: relative;
+  }
+  .flow-step:not(:last-child)::before {
+    content: ''; position: absolute;
+    left: 19px; top: 38px;
+    width: 2px; height: calc(100% - 12px);
+    background: var(--border);
+  }
+  .flow-dot {
+    width: 38px; height: 38px; flex-shrink: 0;
+    background: var(--surface2); border: 2px solid var(--border);
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 16px;
+    margin-top: 2px; position: relative; z-index: 1;
+  }
+  .flow-dot.done { border-color: var(--green); }
+  .flow-dot.warn { border-color: var(--warn); }
+  .flow-dot.danger { border-color: var(--red); }
+  .flow-content { flex: 1; padding-bottom: 22px; }
+  .flow-head { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .flow-body { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+
+  /* ── KENNWERT TABLE ── */
+  table.kw-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.kw-table th {
+    text-align: left; padding: 8px 10px;
+    background: var(--surface2); color: var(--text-muted);
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    border-bottom: 1px solid var(--border);
+  }
+  table.kw-table td {
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+    color: var(--text-dim); vertical-align: top;
+  }
+  table.kw-table tr:last-child td { border-bottom: none; }
+  table.kw-table tr:hover td { background: rgba(255,255,255,.02); }
+  table.kw-table td:first-child { color: var(--text); font-weight: 600; }
+
+  /* ── QUICK CARDS ── */
+  .quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 12px; margin-bottom: 24px; }
+  .quick-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer; transition: all .2s;
+    text-align: left;
+  }
+  .quick-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .quick-card .qico { font-size: 28px; margin-bottom: 10px; }
+  .quick-card .qtitle { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .quick-card .qdesc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+
+  /* ── FOOTER ── */
+  .panel-footer {
+    margin-top: 28px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11.5px; color: var(--text-muted); line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⛏</div>
+  <div>
+    <div class="header-title">Erdarbeiten & Bodenmaterial</div>
+    <div class="header-sub">Normenassistent für Bauleiter | VOB/C · DIN 18300 · BBodSchG</div>
+  </div>
+  <div class="header-badge">Riedel Bau</div>
+</header>
+
+<div class="layout">
+
+  <nav>
+    <div class="nav-group">
+      <div class="nav-group-label">Übersicht</div>
+      <button class="nav-btn active" onclick="show('start')">
+        <span class="ico">🏠</span> Startseite
+      </button>
+      <button class="nav-btn" onclick="show('normen')">
+        <span class="ico">📐</span> Normen & Gesetze
+      </button>
+    </div>
+    <hr class="nav-divider">
+    <div class="nav-group">
+      <div class="nav-group-label">DIN 18300</div>
+      <button class="nav-btn" onclick="show('homogen')">
+        <span class="ico">🗂</span> Homogenbereiche
+      </button>
+      <button class="nav-btn" onclick="show('kennwerte')">
+        <span class="ico">📊</span> Bodenkennwerte
+      </button>
+      <button class="nav-btn" onclick="show('einbau')">
+        <span class="ico">🏗</span> Lösen / Einbau / Verdichten
+      </button>
+    </div>
+    <hr class="nav-divider">
+    <div class="nav-group">
+      <div class="nav-group-label">Bodenmaterial</div>
+      <button class="nav-btn" onclick="show('verwertung')">
+        <span class="ico">♻️</span> Verwertung & Entsorgung
+      </button>
+      <button class="nav-btn" onclick="show('bodenschutz')">
+        <span class="ico">⚖️</span> BBodSchG / BBodSchV
+      </button>
+      <button class="nav-btn" onclick="show('kontaminiert')">
+        <span class="ico">☣️</span> Belastetes Bodenmaterial
+      </button>
+    </div>
+    <hr class="nav-divider">
+    <div class="nav-group">
+      <div class="nav-group-label">Praxis</div>
+      <button class="nav-btn" onclick="show('checkliste')">
+        <span class="ico">✅</span> Checkliste Bauleiter
+      </button>
+      <button class="nav-btn" onclick="show('ausschreibung')">
+        <span class="ico">📝</span> StLB-Ausschreibungstexte
+      </button>
+      <button class="nav-btn" onclick="show('ablauf')">
+        <span class="ico">🔄</span> Prozessablauf
+      </button>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ════ START ════ -->
+    <div class="panel active" id="panel-start">
+      <h1>Erdarbeiten & Bodenmaterial</h1>
+      <p class="panel-desc">Normenassistent für die Bauleitung – Homogenbereiche, Bodenverwertung, Bodenschutzrecht und StLB-Ausschreibungstexte auf einen Blick.</p>
+
+      <div class="quick-grid">
+        <button class="quick-card" onclick="show('homogen')">
+          <div class="qico">🗂</div>
+          <div class="qtitle">Homogenbereiche</div>
+          <div class="qdesc">Einteilung & Kennwerte nach DIN 18300:2019</div>
+        </button>
+        <button class="quick-card" onclick="show('verwertung')">
+          <div class="qico">♻️</div>
+          <div class="qtitle">Verwertung / Entsorgung</div>
+          <div class="qdesc">ErsatzbaustoffV, KrWG, BBodSchV §§ 6–8</div>
+        </button>
+        <button class="quick-card" onclick="show('checkliste')">
+          <div class="qico">✅</div>
+          <div class="qtitle">Checkliste</div>
+          <div class="qdesc">Vor, während und nach den Erdarbeiten</div>
+        </button>
+        <button class="quick-card" onclick="show('ausschreibung')">
+          <div class="qico">📝</div>
+          <div class="qtitle">Ausschreibungstexte</div>
+          <div class="qdesc">StLB-Muster für Aushub, Einbau, Entsorgung</div>
+        </button>
+        <button class="quick-card" onclick="show('bodenschutz')">
+          <div class="qico">⚖️</div>
+          <div class="qtitle">BBodSchG</div>
+          <div class="qdesc">Bodenschutzgesetz – relevante Paragraphen</div>
+        </button>
+        <button class="quick-card" onclick="show('ablauf')">
+          <div class="qico">🔄</div>
+          <div class="qtitle">Prozessablauf</div>
+          <div class="qdesc">Von der Baugrunderkundung bis zur Nachsorge</div>
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚡ Aktuelles & wichtige Hinweise</div>
+        <div class="alert-box warn" style="margin-bottom:10px">
+          <strong>ErsatzbaustoffV seit 01.08.2023 in Kraft</strong> – Die Ersatzbaustoffverordnung ersetzt die bisherigen Länderregelungen für den Einbau von Bodenmaterial. BBodSchG wurde entsprechend angepasst.
+        </div>
+        <div class="alert-box info" style="margin-bottom:10px">
+          <strong>DIN 18300:2019-09</strong> ist die aktuelle Fassung. Bodenklassen wurden durch <strong>Homogenbereiche</strong> ersetzt (gültig seit VOB/C 2015).
+        </div>
+        <div class="alert-box danger">
+          <strong>Bedenkenanzeige-Pflicht:</strong> Weicht der tatsächliche Boden von der Baubeschreibung ab (z. B. unbekannte Kontamination, andere Lagerungsdichte), ist nach § 4 Abs. 3 VOB/B sofort schriftlich Bedenken anzumelden.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📐 Normenhierarchie Erdarbeiten</div>
+        <div class="norm-row" style="font-weight:700;font-size:12px;color:var(--text-muted);padding-bottom:6px;">
+          <div>Norm</div><div>Gegenstand</div><div>Typ</div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">DIN 18300:2019</div>
+          <div class="norm-text">ATV Erdarbeiten – Lösen, Laden, Fördern, Einbauen, Verdichten von Boden, Fels und sonstigen Stoffen (VOB/C)</div>
+          <div><span class="norm-tag tag-vob">VOB/C</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">DIN 18196</div>
+          <div class="norm-text">Erd- und Grundbau – Bodenklassifikation für bautechnische Zwecke</div>
+          <div><span class="norm-tag tag-geo">Geo</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">DIN 4020</div>
+          <div class="norm-text">Geotechnische Untersuchungen für bautechnische Zwecke – Geotechnischer Bericht (Grundlage Homogenbereiche)</div>
+          <div><span class="norm-tag tag-geo">Geo</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">DIN EN 1997-1/2</div>
+          <div class="norm-text">Eurocode 7 – Entwurf, Berechnung und Bemessung in der Geotechnik</div>
+          <div><span class="norm-tag tag-geo">Geo</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">BBodSchG</div>
+          <div class="norm-text">Bundes-Bodenschutzgesetz – Schutz vor schädlichen Bodenveränderungen, Altlasten (1999, zul. 2021)</div>
+          <div><span class="norm-tag tag-law">Gesetz</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">BBodSchV</div>
+          <div class="norm-text">Bundes-Bodenschutz- und Altlastenverordnung – §§ 6–8 Auf-/Einbringen von Bodenmaterial</div>
+          <div><span class="norm-tag tag-law">VO</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">ErsatzbaustoffV</div>
+          <div class="norm-text">Ersatzbaustoffverordnung (seit 01.08.2023) – Einbau von mineralischen Ersatzbaustoffen inkl. Bodenmaterial</div>
+          <div><span class="norm-tag tag-env">Umwelt</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">KrWG</div>
+          <div class="norm-text">Kreislaufwirtschaftsgesetz – Abfallrecht, Verwertungspflicht für Bodenaushub</div>
+          <div><span class="norm-tag tag-law">Gesetz</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">DIN 18915</div>
+          <div class="norm-text">Vegetationstechnik – Bodenarbeiten (Oberboden/Mutterboden)</div>
+          <div><span class="norm-tag tag-vob">VOB/C</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">DIN 18916</div>
+          <div class="norm-text">Vegetationstechnik – Pflanzen und Pflanzarbeiten</div>
+          <div><span class="norm-tag tag-vob">VOB/C</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">DIN 18920</div>
+          <div class="norm-text">Vegetationstechnik – Schutz von Bäumen, Pflanzenbeständen und Vegetationsflächen bei Baumaßnahmen</div>
+          <div><span class="norm-tag tag-vob">VOB/C</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">DIN 19731</div>
+          <div class="norm-text">Bodenbeschaffenheit – Verwertung von Bodenmaterial</div>
+          <div><span class="norm-tag tag-env">Umwelt</span></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">LAGA M 20</div>
+          <div class="norm-text">Anforderungen an die Verwertung von mineralischen Abfällen (Boden/Bauschutt) – Technische Regeln</div>
+          <div><span class="norm-tag tag-env">Umwelt</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ NORMEN ════ -->
+    <div class="panel" id="panel-normen">
+      <h1>Normen & Gesetze</h1>
+      <p class="panel-desc">Vollständige Referenz aller relevanten Regelwerke für Erdarbeiten und Bodenmaterialbehandlung.</p>
+
+      <div class="card">
+        <div class="card-title">🏗 VOB/C – Allgemeine Technische Vertragsbedingungen</div>
+        <div class="norm-row"><div class="norm-id">DIN 18300:2019-09</div><div class="norm-text"><strong>Erdarbeiten</strong> – Kernwerk für Aushub, Transport, Einbau und Verdichtung. Gilt für Homogenbereiche (Ablösung der Bodenklassen seit 2015). Abschnitt 0: Hinweise des AG; Abschnitt 2: Stoffe; Abschnitt 3: Ausführung; Abschnitt 4: Nebenleistungen/Besondere Leistungen; Abschnitt 5: Abrechnung.</div><div><span class="norm-tag tag-vob">VOB/C</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18301</div><div class="norm-text">Bohrarbeiten – ergänzend für Baugrunderkundung und Gründungsbohrungen</div><div><span class="norm-tag tag-vob">VOB/C</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18303</div><div class="norm-text">Verbauarbeiten – Baugrubenverbau, Spundwand, Pfahlwand</div><div><span class="norm-tag tag-vob">VOB/C</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18304</div><div class="norm-text">Rammarbeiten</div><div><span class="norm-tag tag-vob">VOB/C</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18305</div><div class="norm-text">Wasserhaltungsarbeiten</div><div><span class="norm-tag tag-vob">VOB/C</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18915</div><div class="norm-text">Bodenarbeiten (Vegetationstechnik / Mutterboden)</div><div><span class="norm-tag tag-vob">VOB/C</span></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔬 Geotechnik & Klassifikation</div>
+        <div class="norm-row"><div class="norm-id">DIN 18196:2011</div><div class="norm-text">Bodenklassifikation für bautechnische Zwecke – Gruppenbezeichnungen (GW, GI, GE, SW, SI, SE, GU, GT, SU, ST, UL, UM, UA, TL, TM, TA, OU, OH, OK, F, V)</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 4020:2010</div><div class="norm-text">Geotechnische Untersuchungen – Grundlage für Geotechnische Kategorien GK 1–3 und Homogenbereiche</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18121</div><div class="norm-text">Wassergehalt – Bestimmung durch Ofentrocknung</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18122</div><div class="norm-text">Zustandsgrenzen (Atterberg-Grenzen) – Flüssigkeits- und Ausrollgrenze (wL, wP → IP)</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18125</div><div class="norm-text">Bestimmung der Dichte des Bodens – Proctor-Versuch</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18127</div><div class="norm-text">Proctor-Versuch (optimaler Wassergehalt, Proctordichte)</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 18134</div><div class="norm-text">Druckversuch – CBR-Wert (California Bearing Ratio)</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN EN ISO 14688</div><div class="norm-text">Benennung, Beschreibung und Klassifizierung von Boden (europäische Grundlage)</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN EN ISO 14689</div><div class="norm-text">Benennung, Beschreibung und Klassifizierung von Fels</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+        <div class="norm-row"><div class="norm-id">EN 1997-1 / EC 7</div><div class="norm-text">Eurocode 7 – Geotechnische Bemessung, Grundlage Geotechnischer Bericht</div><div><span class="norm-tag tag-geo">Geo</span></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚖️ Umweltrecht & Bodenschutz</div>
+        <div class="norm-row"><div class="norm-id">BBodSchG 1998/2021</div><div class="norm-text">Bundes-Bodenschutzgesetz – Vorsorge, Sanierung, Haftung, Altlasten. Zentral: §§ 1, 2, 4, 7, 8, 12</div><div><span class="norm-tag tag-law">Gesetz</span></div></div>
+        <div class="norm-row"><div class="norm-id">BBodSchV 1999</div><div class="norm-text">Bundes-Bodenschutz- und Altlastenverordnung – §§ 6–8 Auf-/Einbringen, Anhang 2 Prüf-/Maßnahmenwerte</div><div><span class="norm-tag tag-law">VO</span></div></div>
+        <div class="norm-row"><div class="norm-id">ErsatzbaustoffV 2021</div><div class="norm-text">Ersatzbaustoffverordnung (in Kraft ab 01.08.2023) – Einbauklassen RC-1 bis RC-3, BM-0 bis BM-F3 für Bodenmaterial</div><div><span class="norm-tag tag-env">Umwelt</span></div></div>
+        <div class="norm-row"><div class="norm-id">KrWG 2012</div><div class="norm-text">Kreislaufwirtschaftsgesetz – Bodenaushub als Abfall (§ 3 Abs. 1), Verwertungspflicht vor Beseitigung</div><div><span class="norm-tag tag-law">Gesetz</span></div></div>
+        <div class="norm-row"><div class="norm-id">LAGA M 20</div><div class="norm-text">Ländergemeinsame Anforderungen für Mineralabfälle – Z 0 bis Z 2 Zuordnungswerte (Boden, Bauschutt, Schlacke)</div><div><span class="norm-tag tag-env">Umwelt</span></div></div>
+        <div class="norm-row"><div class="norm-id">DIN 19731:2017</div><div class="norm-text">Bodenbeschaffenheit – Verwertung von Bodenmaterial: Anforderungen an Untersuchung und Beurteilung</div><div><span class="norm-tag tag-env">Umwelt</span></div></div>
+        <div class="norm-row"><div class="norm-id">DEPV / DepV</div><div class="norm-text">Deponieverordnung – Annahmekriterien für Bodenmaterial auf Deponien DK 0–III</div><div><span class="norm-tag tag-env">Umwelt</span></div></div>
+      </div>
+    </div>
+
+    <!-- ════ HOMOGENBEREICHE ════ -->
+    <div class="panel" id="panel-homogen">
+      <h1>Homogenbereiche</h1>
+      <p class="panel-desc">Seit DIN 18300:2016-09 ersetzen projektspezifische Homogenbereiche die alten Bodenklassen 1–7. Ein Homogenbereich ist ein begrenzter Bereich mit vergleichbaren Boden-/Felseigenschaften für die betreffenden Arbeiten.</p>
+
+      <div class="card">
+        <div class="card-title">📌 Grundprinzip & Geotechnische Kategorien</div>
+        <div class="alert-box info" style="margin-bottom:12px">
+          Die Einteilung in Homogenbereiche basiert auf dem <strong>Geotechnischen Bericht (DIN 4020)</strong> und der Einordnung der Baumaßnahme in Geotechnische Kategorien (GK) nach DIN EN 1997-1.
+        </div>
+        <div class="hb-grid">
+          <div class="hb-card">
+            <div class="hb-title">GK 1 – Kleiner Erdbau</div>
+            <div class="hb-body">Einfache Baumaßnahmen, geringe Risiken. Erfahrungswerte ausreichend, keine komplexe Baugrunduntersuchung erforderlich. Vereinfachte Beschreibung der Homogenbereiche möglich.</div>
+            <div class="hb-kw">Beispiele: <span class="kw-chip">Leitungsgraben</span><span class="kw-chip">Kleinbauwerk</span></div>
+          </div>
+          <div class="hb-card">
+            <div class="hb-title">GK 2 – Normaler Erdbau</div>
+            <div class="hb-body">Übliche Baumaßnahmen ohne besondere Risiken. Vollständige Beschreibung der Kennwerte und Bandbreiten je Homogenbereich. Regelfall im Hochbau-Rohbau.</div>
+            <div class="hb-kw">Beispiele: <span class="kw-chip">Baugrube</span><span class="kw-chip">Pfahlgründung</span><span class="kw-chip">Dammbau</span></div>
+          </div>
+          <div class="hb-card">
+            <div class="hb-title">GK 3 – Komplexer Erdbau</div>
+            <div class="hb-body">Ungewöhnliche Baumaßnahmen oder erhebliche Risiken. Vollständige geotechnische Untersuchung, alle Kennwerte mit Messmethoden angeben.</div>
+            <div class="hb-kw">Beispiele: <span class="kw-chip">Felsaushub</span><span class="kw-chip">Talsperrenbau</span><span class="kw-chip">Altlastenstandort</span></div>
+          </div>
+          <div class="hb-card">
+            <div class="hb-title">Kennzeichnung der Homogenbereiche</div>
+            <div class="hb-body">Keine normierte Bezeichnung. Üblich: Gewerk + laufende Nummer, z. B. <strong>EA 1</strong> (Erdarbeiten, Bereich 1), <strong>BA 1</strong> (Bohrarbeiten). Für jedes Gewerk separate Nummerierung möglich.</div>
+            <div class="hb-kw"><span class="kw-chip">EA = Erdarbeiten</span><span class="kw-chip">BA = Bohrarbeiten</span><span class="kw-chip">VA = Verbauarbeiten</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🪨 Lockergesteine – wichtige Kennwerte</div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Für GK 2/3 sind bis zu 19 Eigenschaften und Bandbreiten anzugeben:</p>
+        <table class="kw-table">
+          <tr><th>Eigenschaft</th><th>Parameter / Einheit</th><th>Prüfverfahren</th></tr>
+          <tr><td>Bodengruppe</td><td>nach DIN 18196 (GW, GU, TL, etc.)</td><td>DIN 18196</td></tr>
+          <tr><td>Ortsveränderlichkeit</td><td>fließend / weich / steif / halbfest / fest</td><td>DIN EN ISO 14688</td></tr>
+          <tr><td>Wassergehalt</td><td>w [%]</td><td>DIN 18121</td></tr>
+          <tr><td>Plastizitätsindex</td><td>IP [%] (aus wL − wP)</td><td>DIN 18122</td></tr>
+          <tr><td>Kornverteilung</td><td>Siebkurve, d₁₀ – d₆₀</td><td>DIN 18123</td></tr>
+          <tr><td>Lagerungsdichte</td><td>D [–] (locker / mitteldicht / dicht)</td><td>DIN 18126</td></tr>
+          <tr><td>Proctordichte / opt. Wassergehalt</td><td>ρPr [g/cm³], wPr [%]</td><td>DIN 18127</td></tr>
+          <tr><td>Scherfestigkeit</td><td>c' [kN/m²], φ' [°]</td><td>DIN 18137</td></tr>
+          <tr><td>Durchlässigkeit</td><td>kf [m/s]</td><td>DIN 18130</td></tr>
+          <tr><td>Organischer Anteil</td><td>Glühverlust [%]</td><td>DIN 18128</td></tr>
+          <tr><td>Steine / Blöcke</td><td>Anteil [%], Größe [mm]</td><td>Feldschätzung / Siebung</td></tr>
+          <tr><td>Umweltrelevante Inhaltsstoffe</td><td>PAK, KW, Schwermetalle etc.</td><td>BB-Analyse / LAGA</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⛰ Festgesteine (Fels) – wichtige Kennwerte</div>
+        <table class="kw-table">
+          <tr><th>Eigenschaft</th><th>Parameter</th><th>Prüfverfahren</th></tr>
+          <tr><td>Gesteinsart / Benennung</td><td>nach DIN EN ISO 14689</td><td>Ansprache vor Ort</td></tr>
+          <tr><td>Einaxiale Druckfestigkeit</td><td>qu [MPa]</td><td>DIN EN ISO 17892</td></tr>
+          <tr><td>Trennflächenabstand</td><td>[mm]</td><td>DIN EN ISO 14689</td></tr>
+          <tr><td>Trennflächenorientierung</td><td>Streichen, Fallen [°]</td><td>Kluftkarte</td></tr>
+          <tr><td>Verwitterungsgrad</td><td>W1–W5 nach DIN EN ISO 14689</td><td>Feldansprache</td></tr>
+          <tr><td>Raumgewicht</td><td>ρ [g/cm³]</td><td>DIN EN ISO 17892</td></tr>
+          <tr><td>Quarzgehalt</td><td>[%] (Abrasivität)</td><td>Mineralanalyse</td></tr>
+        </table>
+      </div>
+
+      <div class="panel-footer">
+        <strong>Hinweis:</strong> Der Homogenbereich beschreibt den Zustand des Bodens/Fels <em>vor dem Lösen</em>. Behandlung, Verbesserung und Aufbereitung zum Wiedereinbau sind Besondere Leistungen nach DIN 18300 Abschnitt 4.2.19 und separat auszuschreiben.
+      </div>
+    </div>
+
+    <!-- ════ KENNWERTE ════ -->
+    <div class="panel" id="panel-kennwerte">
+      <h1>Bodenkennwerte & Klassifikation</h1>
+      <p class="panel-desc">Überblick der DIN 18196 Bodengruppen und typische Eigenschaften für die Praxis.</p>
+
+      <div class="card">
+        <div class="card-title">🔵 Grobkörnige Böden (Kiese & Sande)</div>
+        <table class="kw-table">
+          <tr><th>Gruppe</th><th>Bezeichnung</th><th>Eigenschaften</th><th>Einbaueignung</th></tr>
+          <tr><td>GW</td><td>Kies, weitgestuft</td><td>d₁₀ &gt; 0,063 mm, Cu &gt; 6, gut gestuft</td><td>✅ Sehr gut</td></tr>
+          <tr><td>GI</td><td>Kies, intermittierend gestuft</td><td>Fehlkorn im Bereich 0,063–2 mm</td><td>✅ Gut</td></tr>
+          <tr><td>GE</td><td>Kies, enggestuft</td><td>Cu &lt; 3, homogene Körnung</td><td>⚠️ Bedingt</td></tr>
+          <tr><td>SW</td><td>Sand, weitgestuft</td><td>d₁₀ &gt; 0,063 mm, Cu &gt; 6</td><td>✅ Sehr gut</td></tr>
+          <tr><td>SE</td><td>Sand, enggestuft</td><td>Gleichkörniger Sand (z. B. Dünensand)</td><td>⚠️ Bedingt</td></tr>
+          <tr><td>SI</td><td>Sand, intermittierend</td><td>Fehlkorn mittlere Fraktion</td><td>⚠️ Bedingt</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🟡 Gemischtkörnige Böden</div>
+        <table class="kw-table">
+          <tr><th>Gruppe</th><th>Bezeichnung</th><th>Eigenschaften</th><th>Einbaueignung</th></tr>
+          <tr><td>GU / GU*</td><td>Kies mit Schluff (nicht / schwach plastisch)</td><td>Feinanteile 5–15 %, schluffig</td><td>✅ Gut / ⚠️ Bedingt</td></tr>
+          <tr><td>GT / GT*</td><td>Kies mit Ton</td><td>Feinanteile &gt; 5 %, tonig-plastisch</td><td>⚠️ Bedingt</td></tr>
+          <tr><td>SU / SU*</td><td>Sand mit Schluff</td><td>Schluffanteil 5–15 %, kapillar</td><td>⚠️ Bedingt</td></tr>
+          <tr><td>ST / ST*</td><td>Sand mit Ton</td><td>Tonanteil bindet Körner</td><td>⚠️ Bedingt</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔴 Feinkörnige Böden (Schluffe & Tone)</div>
+        <table class="kw-table">
+          <tr><th>Gruppe</th><th>Bezeichnung</th><th>IP</th><th>Einbaueignung</th></tr>
+          <tr><td>UL</td><td>Schluff, leicht plastisch</td><td>IP &lt; 10 %</td><td>❌ Schlecht (frostsensibel)</td></tr>
+          <tr><td>UM</td><td>Schluff, mittlere Plastizität</td><td>IP 10–30 %</td><td>❌ Schlecht</td></tr>
+          <tr><td>UA</td><td>Schluff, ausgeprägt plastisch</td><td>IP &gt; 30 %</td><td>❌ Sehr schlecht</td></tr>
+          <tr><td>TL</td><td>Ton, leicht plastisch</td><td>IP &lt; 10 %</td><td>⚠️ Eingeschränkt</td></tr>
+          <tr><td>TM</td><td>Ton, mittlere Plastizität</td><td>IP 10–30 %</td><td>❌ Schlecht</td></tr>
+          <tr><td>TA</td><td>Ton, ausgeprägt plastisch</td><td>IP &gt; 30 %</td><td>❌ Sehr schlecht</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🟤 Organische Böden & Sonderböden</div>
+        <table class="kw-table">
+          <tr><th>Gruppe</th><th>Bezeichnung</th><th>Einbaueignung</th></tr>
+          <tr><td>OU</td><td>Oberboden / Mutterboden (humos)</td><td>❌ Nicht als Tragschicht</td></tr>
+          <tr><td>OH</td><td>Humoser Ton oder Schluff</td><td>❌ Nicht geeignet</td></tr>
+          <tr><td>OK</td><td>Kompostierter Boden</td><td>❌ Nur Rekultivierung</td></tr>
+          <tr><td>F</td><td>Boden mit organischen Beimengungen (Fasertorf)</td><td>❌ Nicht geeignet</td></tr>
+          <tr><td>V</td><td>Auffüllung, Deponiegut</td><td>⚠️ Nur nach Prüfung</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════ EINBAU ════ -->
+    <div class="panel" id="panel-einbau">
+      <h1>Lösen, Fördern, Einbauen & Verdichten</h1>
+      <p class="panel-desc">Ausführungsanforderungen nach DIN 18300 Abschnitt 3 und relevante Vorgaben für den Wiedereinbau von Bodenmaterial.</p>
+
+      <div class="card">
+        <div class="card-title">⚙️ Ausführungsgrundsätze DIN 18300 §3</div>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-dot">📋</div>
+            <div class="flow-content">
+              <div class="flow-head">Begehung vor Arbeitsbeginn (3.2.1)</div>
+              <div class="flow-body">Gemeinsame Begehung AG + AN. Zustand der Oberflächen, Nachbarbebauung und vorhandene Leitungen dokumentieren. Abweichungen der Bodenverhältnisse von den Unterlagen sofort als Bedenken melden (§ 4 Abs. 3 VOB/B).</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot warn">🌿</div>
+            <div class="flow-content">
+              <div class="flow-head">Oberboden (Mutterboden) sichern</div>
+              <div class="flow-body">Oberboden ist vor Beginn der Erdarbeiten gesondert abzutragen und fachgerecht zwischenzulagern (DIN 18915). Lagerungshöhe max. 2,0 m, keine Verdichtung, kein Befahren. Nicht mit Unterboden vermischen.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">⛏</div>
+            <div class="flow-content">
+              <div class="flow-head">Lösen und Laden</div>
+              <div class="flow-body">Gerätewahl liegt beim AN (Unternehmerrisiko). Maßgeblich sind die im Homogenbereich angegebenen Kennwerte. Bei unerwarteten Abweichungen → Bedenken anmelden, ggf. Nachtrag.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">🚛</div>
+            <div class="flow-content">
+              <div class="flow-head">Fördern / Transport</div>
+              <div class="flow-body">Förderwege und Transportmittel Sache des AN. Bodenmaterial getrennt nach Qualitäten lagern (belastet / unbelastet). Abdeckpflicht bei Regen für feinkörnige Böden.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot warn">🏗</div>
+            <div class="flow-content">
+              <div class="flow-head">Einbauen in Lagen</div>
+              <div class="flow-body">Einbau in horizontalen Lagen. Lagendicke abhängig von Bodenmaterial und Verdichtungsgerät (typisch 20–50 cm locker). Einbau darf nicht bei Frost erfolgen (wenn nicht vereinbart). Stark schwellende oder setzungsempfindliche Böden nur mit gesonderter Vereinbarung.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot done">✅</div>
+            <div class="flow-content">
+              <div class="flow-head">Verdichten & Nachweis</div>
+              <div class="flow-body">Verdichtungsnachweis durch Plattendruckversuch (DIN 18134, Ev2 / Ev1-Verhältnis ≤ 2,2) oder Proctor (≥ 95 % DPr). Protokolle für jede Lage. Feld-Versuche nach DIN 18125 oder DIN 18134.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📏 Mindest-Ev2-Werte (orientierend)</div>
+        <table class="kw-table">
+          <tr><th>Anwendungsbereich</th><th>Ev2 [MN/m²]</th><th>Ev2/Ev1</th></tr>
+          <tr><td>Planum unter Straßenoberbau</td><td>≥ 45</td><td>≤ 2,2</td></tr>
+          <tr><td>Frostschutzschicht</td><td>≥ 120</td><td>≤ 2,2</td></tr>
+          <tr><td>Schottertragschicht</td><td>≥ 150</td><td>≤ 2,2</td></tr>
+          <tr><td>Leitungszone (unter Rohr)</td><td>≥ 15–20</td><td>–</td></tr>
+          <tr><td>Hinterfüllung Bauwerk</td><td>≥ 45 (je nach Planung)</td><td>≤ 2,2</td></tr>
+        </table>
+        <div class="alert-box warn" style="margin-top:12px">
+          Verbindliche Werte immer aus den Leistungsbeschreibungen / Bauvertrag entnehmen. Obige Werte sind Richtwerte nach ZTV E-StB und ZTVE.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚠️ Besondere Leistungen (DIN 18300 Abschn. 4)</div>
+        <div style="font-size:13.5px;color:var(--text-dim);line-height:1.7">
+          Folgende Leistungen sind <strong>nicht</strong> in der Grundleistung enthalten und müssen separat ausgeschrieben werden:
+          <ul style="margin-top:8px;padding-left:20px">
+            <li>Sicherung von Böden gegen Austrocknung oder Durchnässung</li>
+            <li>Behandlung, Verbesserung oder Aufbereitung von Boden zum Wiedereinbau (z. B. Kalkstabilisierung)</li>
+            <li>Bodenverbesserung mit Bindemitteln</li>
+            <li>Beseitigung von Hindernissen (Findlinge, Leitungen, Pfähle)</li>
+            <li>Wasserhaltung (→ DIN 18305)</li>
+            <li>Untersuchung und Klassifizierung von Bodenmaterial auf Schadstoffe</li>
+            <li>Aushub und Entsorgung belasteten Materials über ErsatzbaustoffV / DepV hinaus</li>
+            <li>Verdichtungsnachweise (Plattendruckversuch, Proctor)</li>
+            <li>Rückbau temporärer Verkehrs- und Lagerflächen</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ VERWERTUNG ════ -->
+    <div class="panel" id="panel-verwertung">
+      <h1>Verwertung & Entsorgung von Bodenmaterial</h1>
+      <p class="panel-desc">Rechtliche Anforderungen und praktische Entscheidungshilfe für die Verwertung von Aushubmaterial nach ErsatzbaustoffV, BBodSchV und KrWG.</p>
+
+      <div class="card">
+        <div class="card-title">🗺 Entscheidungsbaum Bodenmaterial</div>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-dot">🔍</div>
+            <div class="flow-content">
+              <div class="flow-head">Schritt 1: Herkunft und Vornutzung prüfen</div>
+              <div class="flow-body">Ist das Grundstück altlastverdächtig? Wurde es gewerblich, industriell oder militärisch genutzt? → Wenn ja: Orientierungsuntersuchung nach BBodSchV erforderlich, bevor Boden bewegt wird.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">🧪</div>
+            <div class="flow-content">
+              <div class="flow-head">Schritt 2: Analytik – Einbauklasse bestimmen</div>
+              <div class="flow-body">Schadstoffuntersuchung nach ErsatzbaustoffV (ab 01.08.2023) oder LAGA M 20. Einbauklasse BM-0 bis BM-F3 bestimmen (BM = Bodenmaterial).</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot done">♻️</div>
+            <div class="flow-content">
+              <div class="flow-head">Schritt 3: Verwertungsweg festlegen</div>
+              <div class="flow-body">BM-0: Uneingeschränkter Einbau in alle Bereiche. BM-F1/F2: Einbau technisch gebunden (versiegelter Bereich). BM-F3/belastet: Nur Deponie DK 0–II oder Sonderbehandlung.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot warn">📄</div>
+            <div class="flow-content">
+              <div class="flow-head">Schritt 4: Dokumentation & Begleitschein</div>
+              <div class="flow-body">Materialdeklaration nach ErsatzbaustoffV. Lieferschein / Entsorgungsnachweis je nach Einstufung. Behördenanzeige bei &gt; 500 m³ Einbau oder Einbau in Wasserschutzgebieten.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Einbauklassen Bodenmaterial (ErsatzbaustoffV 2023)</div>
+        <table class="kw-table">
+          <tr><th>Klasse</th><th>Beschreibung</th><th>Einbaumöglichkeit</th></tr>
+          <tr><td>BM-0</td><td>Naturbelassenes Bodenmaterial, sehr gering belastet (unter Vorsorgewert BBodSchV)</td><td>Offener und technischer Einbau, alle Wasserschutzzonen</td></tr>
+          <tr><td>BM-F0*</td><td>Gering belastet, natürliche Hintergrundwerte überschritten</td><td>Offener Einbau, eingeschränkt WSG</td></tr>
+          <tr><td>BM-F1</td><td>Mäßig belastet</td><td>Technischer Einbau mit definierten Deckschichten</td></tr>
+          <tr><td>BM-F2</td><td>Erhöht belastet</td><td>Technischer Einbau nur in versiegelten Bereichen</td></tr>
+          <tr><td>BM-F3</td><td>Stark belastet (unter Maßnahmenwert)</td><td>Einbau nur in dichten Bauwerken, sonst Deponie DK I</td></tr>
+          <tr><td>&gt; BM-F3</td><td>Maßnahmenwert überschritten (Altlast)</td><td>Deponie DK II / III oder Behandlung</td></tr>
+        </table>
+        <div class="alert-box info" style="margin-top:12px">
+          *BM-F0 gilt als Übergangslösung bis Ländervollzug vollständig etabliert. Die Länder können strengere Anforderungen festlegen.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚖️ Abgrenzung Abfall – Nichtabfall</div>
+        <div style="font-size:13.5px;color:var(--text-dim);line-height:1.7">
+          Bodenmaterial ist nach <strong>§ 3 Abs. 1 KrWG</strong> grundsätzlich Abfall, wenn der Besitzer es entsorgen will oder muss. Es kann von der Abfalleigenschaft befreit werden, wenn:
+          <ul style="margin-top:8px;padding-left:20px">
+            <li>Der Boden auf derselben Fläche wiederverwertet wird (§ 2 Abs. 2 KrWG i. V. m. BBodSchG)</li>
+            <li>Ein ordnungsgemäßer Sanierungsplan gem. BBodSchG besteht</li>
+            <li>Die Anforderungen der ErsatzbaustoffV erfüllt sind (Ende der Abfalleigenschaft bei Einbau)</li>
+          </ul>
+          <div class="alert-box danger" style="margin-top:10px">
+            Unerlaubtes Einbringen von belastetem Bodenmaterial in den Boden oder Gewässer ist eine Ordnungswidrigkeit nach KrWG und BBodSchG (Bußgeld bis 100.000 €).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ BODENSCHUTZ ════ -->
+    <div class="panel" id="panel-bodenschutz">
+      <h1>BBodSchG – Bodenschutzgesetz</h1>
+      <p class="panel-desc">Bundes-Bodenschutzgesetz (BBodSchG, 1999, zuletzt geändert 2021) – Relevante Paragraphen für die Baustelle.</p>
+
+      <div class="card">
+        <div class="card-title">📜 Wesentliche Paragrafen für die Bauleitung</div>
+
+        <div class="law-section">
+          <div class="law-para">§ 1 BBodSchG</div>
+          <div class="law-title">Zweck des Gesetzes</div>
+          <div class="law-body">Nachhaltige Sicherung und Wiederherstellung der Bodenfunktionen. Abwehr schädlicher Bodenveränderungen, Sanierung von Altlasten und Vorsorge gegen nachteilige Einwirkungen.</div>
+        </div>
+
+        <div class="law-section">
+          <div class="law-para">§ 2 BBodSchG</div>
+          <div class="law-title">Begriffsbestimmungen</div>
+          <div class="law-body">
+            <ul>
+              <li><strong>Boden</strong> = obere Schicht der Erdkruste als Träger von natürlichen und Nutzungsfunktionen</li>
+              <li><strong>Schädliche Bodenveränderung</strong> = Beeinträchtigung der Bodenfunktionen mit Gefahrenpotential für Mensch oder Allgemeinheit</li>
+              <li><strong>Altlast</strong> = Altablagerungen oder Altstandorte mit schädlichen Bodenveränderungen</li>
+              <li><strong>Sanierung</strong> = Dekontaminationsmaßnahmen, Sicherungsmaßnahmen, Beschränkungsmaßnahmen</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="law-section">
+          <div class="law-para">§ 4 BBodSchG</div>
+          <div class="law-title">Pflichten zur Gefahrenabwehr</div>
+          <div class="law-body">
+            <strong>Abs. 1:</strong> Jeder, der auf einem Grundstück Tätigkeiten ausführt, die zu Veränderungen der Bodenbeschaffenheit führen können, muss Vorsorge treffen.<br><br>
+            <strong>Abs. 3:</strong> Verursacher einer schädlichen Bodenveränderung oder Altlast sowie Grundstückseigentümer sind zur Sanierung verpflichtet.<br><br>
+            <strong>Für Bauleiter besonders relevant:</strong> Als ausführendes Unternehmen können Sie als <em>Handlungsstörer</em> in die Sanierungspflicht genommen werden, wenn durch die Baumaßnahme eine Kontamination verursacht oder verschleppt wird.
+            <div class="alert-box danger" style="margin-top:8px">
+              Sanierungspflicht trifft den Verursacher unbegrenzt – auch nachträglich! Sofort bei Verdacht Bauarbeiten stoppen, Behörde informieren.
+            </div>
+          </div>
+        </div>
+
+        <div class="law-section">
+          <div class="law-para">§ 7 BBodSchG</div>
+          <div class="law-title">Vorsorgepflicht</div>
+          <div class="law-body">
+            Grundstückseigentümer und Inhaber der tatsächlichen Gewalt sind verpflichtet, Vorsorge gegen das Entstehen schädlicher Bodenveränderungen zu treffen. Vorsorgemaßnahmen bei räumlich oder zeitlich weitreichenden Auswirkungen einer Nutzung.
+            <div class="alert-box warn" style="margin-top:8px">
+              Praxis: Keine unnötige Verdichtung des Unterbodens durch schweres Gerät. Schutz der Bodenstruktur bei laufenden Arbeiten (Lastverteilungsplatten, Baustraßen).
+            </div>
+          </div>
+        </div>
+
+        <div class="law-section">
+          <div class="law-para">§ 12 BBodSchG</div>
+          <div class="law-title">Auf- und Einbringen von Materialien</div>
+          <div class="law-body">
+            Materialien dürfen auf oder in den Boden nur eingebracht werden, wenn die Schadstoffgehalte die Vorsorgewerte nach BBodSchV Anhang 2 nicht überschreiten. Detailregelungen in <strong>BBodSchV §§ 6–8</strong> und seit 2023 in der <strong>ErsatzbaustoffV</strong>.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 BBodSchV §§ 6–8 – Auf- und Einbringen von Bodenmaterial</div>
+        <div class="norm-row">
+          <div class="norm-id">§ 6 BBodSchV</div>
+          <div class="norm-text">Anforderungen bei Verdacht schädlicher Bodenveränderungen – Untersuchungs- und Bewertungspflichten</div>
+          <div></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">§ 7 BBodSchV</div>
+          <div class="norm-text">Anforderungen an das Aufbringen auf die durchwurzelbare Bodenschicht – Schadstoffgrenzwerte, Eignung des Materials</div>
+          <div></div>
+        </div>
+        <div class="norm-row">
+          <div class="norm-id">§ 8 BBodSchV</div>
+          <div class="norm-text">Anforderungen an das Einbringen unterhalb der durchwurzelbaren Bodenschicht (Untergrund, Baugruben) – strengere Anforderungen bei Grundwassernähe</div>
+          <div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏢 Behördliche Zuständigkeit</div>
+        <div style="font-size:13.5px;color:var(--text-dim);line-height:1.7">
+          Vollzug des BBodSchG durch die <strong>Kreisverwaltungsbehörde</strong> (Landratsamt oder kreisfreie Stadt). In Bayern: Ergänzt durch BayBodSchVwV (Vollzugshilfe).
+          <div class="alert-box info" style="margin-top:10px">
+            Bei konkretem Altlastverdacht oder Fund von Kontaminationen auf der Baustelle: Unverzüglich an das <strong>Landratsamt / die untere Bodenschutzbehörde</strong> melden. Ggf. Baustopp und Sicherungsmaßnahmen erforderlich.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ KONTAMINIERT ════ -->
+    <div class="panel" id="panel-kontaminiert">
+      <h1>Belastetes Bodenmaterial</h1>
+      <p class="panel-desc">Vorgehen bei Verdacht auf Kontamination – rechtliche Pflichten, Analytik, Entsorgungswege.</p>
+
+      <div class="card">
+        <div class="card-title">🚨 Verdacht auf Kontamination – Sofortmaßnahmen</div>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-dot danger">🛑</div>
+            <div class="flow-content">
+              <div class="flow-head">Arbeiten sofort einstellen</div>
+              <div class="flow-body">Keine weitere Vermischung von belastetem mit unbelastetem Material. Betroffenen Bereich absperren und sichern. Keine Entsorgung ohne Freigabe.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot warn">📝</div>
+            <div class="flow-content">
+              <div class="flow-head">Bedenken anmelden (§ 4 Abs. 3 VOB/B)</div>
+              <div class="flow-body">Schriftliche Bedenkenanzeige an AG. Inhalt: Art und Umfang der Abweichung, Zeitpunkt des Fundes, eigene Maßnahmen. Keine mündliche Anzeige ausreichend.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot warn">🏛</div>
+            <div class="flow-content">
+              <div class="flow-head">Behörde informieren</div>
+              <div class="flow-body">Bei konkretem Altlastverdacht → Untere Bodenschutzbehörde (Landratsamt) unverzüglich informieren. AG ist verpflichtet; AN ggf. subsidiär.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">🧪</div>
+            <div class="flow-content">
+              <div class="flow-head">Probenahme und Analytik</div>
+              <div class="flow-body">Rasterförmige Beprobung. Standardparameter: PAK, Mineralölkohlenwasserstoffe (MKW), BTEX, Schwermetalle (Pb, Cd, Cu, Zn, Ni, As, Hg, Cr). Bei Bedarf: LHKW, PCB, Asbestfasern (Altgebäude).</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot done">📋</div>
+            <div class="flow-content">
+              <div class="flow-head">Entsorgungsweg festlegen</div>
+              <div class="flow-body">Nach Analysergebnis: Zuordnung zu ErsatzbaustoffV-Klasse (BM-F2/F3) oder Deponieklasse. Entsorgungsnachweis gem. NachweisVO. Transportgenehmigung bei gefährlichen Abfällen.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔬 Typische Schadstoffe und Grenzwerte (Orientierung)</div>
+        <table class="kw-table">
+          <tr><th>Schadstoff</th><th>Quelle</th><th>Prüfwert BBodSchV (Nutzung Wohnen)</th></tr>
+          <tr><td>PAK (EPA)</td><td>Teer, Bitumen, Altgas</td><td>2 mg/kg TS (Maßnahmenwert)</td></tr>
+          <tr><td>MKW (Mineralöl)</td><td>Tankstellen, Werkstätten</td><td>500 mg/kg TS (Prüfwert)</td></tr>
+          <tr><td>Blei (Pb)</td><td>Farben, Munition, Akkus</td><td>400 mg/kg TS (Prüfwert)</td></tr>
+          <tr><td>Arsen (As)</td><td>Pestizide, Verhüttung</td><td>25 mg/kg TS (Prüfwert)</td></tr>
+          <tr><td>Cadmium (Cd)</td><td>Zink-Verarbeitung, Dünger</td><td>2 mg/kg TS (Prüfwert)</td></tr>
+          <tr><td>Nickel (Ni)</td><td>Metall-Industrie</td><td>70 mg/kg TS (Prüfwert)</td></tr>
+          <tr><td>LHKW</td><td>Reinigungsmittel, Entfetter</td><td>10 µg/l (Grundwasser-PW)</td></tr>
+          <tr><td>Asbest</td><td>Altbaustoffe, Abbruch</td><td>Nulltoleranz, AVV 17 06 05*</td></tr>
+        </table>
+        <div class="alert-box warn" style="margin-top:10px">
+          Werte aus BBodSchV Anhang 2 (Prüfwerte). Für Einbauklassen nach ErsatzbaustoffV gelten separate, oft strengere Zuordnungswerte. Immer aktuelle Fassung und ggf. Landesregelung prüfen.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ CHECKLISTE ════ -->
+    <div class="panel" id="panel-checkliste">
+      <h1>Checkliste für Bauleiter</h1>
+      <p class="panel-desc">Vollständige Prüfliste für Erdarbeiten – vor, während und nach der Ausführung. Alle Punkte können abgehakt werden.</p>
+
+      <div class="checklist-controls">
+        <button class="ctrl-btn" onclick="checkAll()">Alle abhaken</button>
+        <button class="ctrl-btn" onclick="uncheckAll()">Alle zurücksetzen</button>
+        <span id="check-count" style="margin-left:auto;color:var(--text-muted);font-size:12px"></span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+
+      <div class="card">
+        <div class="card-title">📋 Vor Beginn der Erdarbeiten</div>
+        <ul class="checklist" id="list-vor">
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Geotechnischer Bericht liegt vor und wurde ausgewertet (Homogenbereiche, Kennwerte, GK)</span><span class="check-ref">DIN 4020 / 18300</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Homogenbereiche in Leistungsbeschreibung vollständig beschrieben (alle Pflicht-Kennwerte mit Bandbreiten)</span><span class="check-ref">DIN 18300 §0</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Altlastenkataster / Altlastenverdacht geprüft (Erkundung, Vornutzung des Grundstücks)</span><span class="check-ref">BBodSchG §4</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Bodenmaterial-Voruntersuchung vorhanden (bei Altlastverdacht oder Einbau von Fremdmaterial)</span><span class="check-ref">BBodSchV §6 / ErsatzbaustoffV</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Leitungsauskünfte eingeholt (Strom, Gas, Wasser, Telekommunikation) – Leitungsplan vorhanden</span><span class="check-ref">DVGW / DGUV V9</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Gemeinsame Begehung AG + AN vor Arbeitsbeginn durchgeführt und protokolliert</span><span class="check-ref">DIN 18300 §3.2.1</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Schutzmaßnahmen für Bäume und Pflanzenbestände festgelegt (Baumschutz nach DIN 18920)</span><span class="check-ref">DIN 18920</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Ablagerungs- und Zwischenlagerflächen für Oberboden und Bodenaushub definiert (getrennt nach Qualitäten)</span><span class="check-ref">BBodSchG §7</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Entsorgungskonzept für belastetes Bodenmaterial vorbereitet (ggf. Behördengenehmigung eingeholt)</span><span class="check-ref">KrWG / DepV</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Verdichtungsanforderungen aus LV in Ausführungsplanung übertragen (Ev2-Werte, DPr-Werte)</span><span class="check-ref">ZTV E-StB / DIN 18300</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Wasserhaltungskonzept vorhanden (wenn GWS erreichbar oder wasserführende Schichten bekannt)</span><span class="check-ref">DIN 18305</span></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚙️ Während der Ausführung</div>
+        <ul class="checklist" id="list-during">
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Oberboden separat abgetragen, fachgerecht gelagert (max. 2 m Höhe, keine Verdichtung)</span><span class="check-ref">DIN 18915</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Tatsächlicher Boden mit Homogenbereich-Beschreibung verglichen – Abweichungen gemeldet</span><span class="check-ref">DIN 18300 §3 / VOB/B §4.3</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Bei unerwarteter Kontamination (Geruch, Verfärbung): Arbeiten gestoppt, Bedenken erhoben, Behörde informiert</span><span class="check-ref">BBodSchG §4 / VOB/B §4.3</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Bodenmaterial nach Qualitäten getrennt gelagert (unbelastet / bedingt belastet / belastet)</span><span class="check-ref">KrWG / ErsatzbaustoffV</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Einbau in Lagen (Lagendicke lt. Ausführungsplanung), kein Einbau bei Frost</span><span class="check-ref">DIN 18300 §3</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Verdichtungsnachweis je Lage / Abschnitt – Plattendruckversuch dokumentiert</span><span class="check-ref">DIN 18134</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Schutz des freigelegten Planums vor Weichwerden (keine Befahrung bei Nässe ohne Lastverteilung)</span><span class="check-ref">DIN 18300 §3</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Wassergehalt des Einbaumaterials kontrolliert (ggf. Auftrocknung oder Zumischen trockener Böden)</span><span class="check-ref">DIN 18127 / DIN 18300</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Lieferscheine und Wiegenachweise für abtransportiertes Bodenmaterial vollständig gesammelt</span><span class="check-ref">NachweisVO / KrWG</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Bautagebuch geführt: tägliche Erdmassen, Bodenzustände, besondere Vorkommnisse</span><span class="check-ref">VOB/B §14</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Grundwasserstand beobachtet und mit Annahmen aus Baugrund-Gutachten verglichen</span><span class="check-ref">DIN 4020</span></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✅ Abschluss & Dokumentation</div>
+        <ul class="checklist" id="list-after">
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Alle Plattendruckversuch-Protokolle (Ev2, Ev2/Ev1) vorhanden und abgelegt</span><span class="check-ref">DIN 18134</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Oberboden auf Rekultivierungsflächen nach DIN 18915 fachgerecht wiederhergestellt</span><span class="check-ref">DIN 18915 / DIN 18916</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Entsorgungsnachweise für belastetes Material vollständig (Verwiegung + Empfangsbestätigung der Deponie/Aufbereiter)</span><span class="check-ref">NachweisVO</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Mengendokumentation Einbau/Aushub für Abrechnung nach DIN 18300 §5 abgeschlossen</span><span class="check-ref">DIN 18300 §5</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Änderungen gegenüber Homogenbereich-Beschreibung mit AG abgestimmt und dokumentiert (Nachtrag)</span><span class="check-ref">VOB/B §2</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Schutzmaßnahmen für Pflanzen und Bäume rückgebaut, Schäden dokumentiert</span><span class="check-ref">DIN 18920</span></li>
+          <li onclick="toggle(this)"><span class="check-box">✓</span><span>Alle Unterlagen für Abnahme zusammengestellt (Verdichtungsprotokolle, Analysen, Lieferscheine, Bautagebuch)</span><span class="check-ref">VOB/B §12</span></li>
+        </ul>
+      </div>
+
+      <div class="panel-footer">
+        Stand: DIN 18300:2019-09 · BBodSchG 2021 · ErsatzbaustoffV 2023. Diese Checkliste ersetzt nicht das Lesen der vollständigen Normen und Gesetze.
+      </div>
+    </div>
+
+    <!-- ════ AUSSCHREIBUNG ════ -->
+    <div class="panel" id="panel-ausschreibung">
+      <h1>StLB-Ausschreibungstexte</h1>
+      <p class="panel-desc">Muster-Leistungstexte nach StLB-Bau LB 002 Erdarbeiten – orientiert an DIN 18300:2019. Texte zum Kopieren aufklappen.</p>
+
+      <div class="stlb-tabs">
+        <button class="stlb-tab active" onclick="stlbTab('aushub')">Aushub</button>
+        <button class="stlb-tab" onclick="stlbTab('einbau')">Wiedereinbau</button>
+        <button class="stlb-tab" onclick="stlbTab('oberboden')">Oberboden</button>
+        <button class="stlb-tab" onclick="stlbTab('entsorgung')">Entsorgung</button>
+        <button class="stlb-tab" onclick="stlbTab('sonderleis')">Sonderleistungen</button>
+      </div>
+
+      <!-- AUSHUB -->
+      <div class="stlb-block active" id="stlb-aushub">
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.001</span>
+            <span class="pos-title">Baugrubenaushub – Homogenbereich EA 1</span>
+            <span class="pos-unit">m³</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <p>Lösen, Laden und Abtransportieren von Boden der angegebenen Homogenbereiche für die Herstellung einer Baugrube.</p>
+            <pre>Position: 002.001
+Leistung: Baugrubenaushub
+Einheit:  m³ (nach Aushubplan, Übermessungsregel DIN 18300 §5)
+
+Boden/Fels:         Homogenbereich EA 1
+Bodengruppe (DIN 18196): ___ (z. B. SU / GU / TL)
+Zustandsform:       ___ (z. B. steif / halbfest)
+Wassergehalt:       w = ___–___  %
+Plastizitätsindex:  IP = ___–___  % (bindige Böden)
+Lagerungsdichte:    D = ___–___  (nichtbindige Böden)
+Anteil Steine:      ___–___  %  (> 63 mm)
+Geotechn. Kategorie: GK ___
+
+Aushubtiefe:        bis UK Sohle, ca. ___  m u. GOK
+Arbeitsraum:        gemäß Planung / lt. Zeichnung Nr. ___
+Grundwasser:        ☐ oberhalb Aushubsohle  ☐ nicht erwartet
+
+Bodenmaterial:
+  ☐ auf Baustelle zwischenlagern (Wiedereinbau lt. Pos. ___)
+  ☐ abtransportieren zu:  ____________
+  ☐ Entsorgungsnachweis nach NachweisVO beizubringen
+
+Nebenleistungen: Absicherung Aushubkante, Böschungswinkel gem.
+Berechnung, Überpumpen bei Grundwasserzutritt bis 0,1 l/s.
+
+Nicht enthalten: Wasserhaltung > 0,1 l/s (Pos. ___),
+Verbauarbeiten (Pos. ___), Entsorgung belasteter Böden (Pos. ___).</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.002</span>
+            <span class="pos-title">Leitungsgrabenaushub – Homogenbereich EA 1</span>
+            <span class="pos-unit">m³</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>Position: 002.002
+Leistung: Leitungsgrabenaushub
+Einheit:  m³ (Breite × Tiefe × Länge, lt. DIN 18300 §5)
+
+Boden/Fels:         Homogenbereich EA 1
+Bodengruppe:        ___ (DIN 18196)
+Grabenbreite:       ___ cm (Lichte Weite)
+Grabentiefe:        ca. ___  m u. GOK
+
+Sohle: sauber und eben herstellen, Unterschreitung der
+Planumstiefe um > 5 cm ist unzulässig (ggf. Nachtrag).
+
+Aushubmaterial:
+  ☐ für Wiedereinbau Leitungszone zwischenlagern
+  ☐ abfahren (lt. Pos. ___)
+
+Grabensicherung: Böschung oder Verbau gem. UVV.
+Verbau nicht enthalten (Pos. ___).
+
+Einheit: m³, Übermessungsregel nach DIN 18300 §5.2.</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.003</span>
+            <span class="pos-title">Aushub Mehrere Homogenbereiche</span>
+            <span class="pos-unit">m³</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>Position: 002.003
+Leistung: Baugrubenaushub – Mehrhomogenbereich
+Einheit:  m³ je Homogenbereich (separate Positionen!)
+
+Hinweis Ausschreibung:
+Für jeden Homogenbereich ist eine eigene Aushubposition
+zu bilden. Beispiel für 2 Homogenbereiche:
+
+Homogenbereich EA 1 (Oberboden / Auffüllung)
+  Tiefe: 0,0 – 0,5 m u. GOK
+  Bodengruppe: OU / V
+  → Separate Zwischenlagerung und Entsorgung
+
+Homogenbereich EA 2 (Gewachsener Boden)
+  Tiefe: 0,5 – 4,0 m u. GOK
+  Bodengruppe: GU / SU
+  Wassergehalt: w = 8–18 %
+  → Wiedereinbau oder Abtransport lt. Pos. ___
+
+Hinweis: Grenzen zwischen Homogenbereichen sind im
+Aufmaß zu belegen. Bei Abweichungen → Bedenken-
+anzeige + Nachtrag nach VOB/B §2.</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WIEDEREINBAU -->
+      <div class="stlb-block" id="stlb-einbau">
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.010</span>
+            <span class="pos-title">Bodenmaterial einbauen und verdichten</span>
+            <span class="pos-unit">m³</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>Position: 002.010
+Leistung: Einbauen und Verdichten von Bodenmaterial
+Einheit:  m³ (eingebaut, gerüttelt)
+
+Material:           Bodenmaterial aus Pos. 002.001
+                    oder angeliefertes Material (Pos. ___)
+Bodengruppe:        ___  (DIN 18196)
+Einbaubereich:      ☐ Hinterfüllung Bauwerk
+                    ☐ Leitungszone
+                    ☐ Planum / Erdbauwerk
+
+Lagendicke (locker): max. ___  cm
+Verdichtungsgerät:   Wahl des AN (Unternehmerrisiko)
+Verdichtungsgrad:    ≥ ___ % DPr  (nach DIN 18127)
+                     oder Ev2 ≥ ___  MN/m²
+
+Verdichtungsnachweis: Plattendruckversuch DIN 18134
+  ☐ Je Schicht und Abschnitt (ca. alle 200 m²)
+  ☐ Protokolle dem AG zu übergeben
+
+Nicht enthalten: Proctor-Versuch (Pos. ___),
+Wassergehaltskontrolle (Pos. ___).</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.011</span>
+            <span class="pos-title">Plattendruckversuch – Verdichtungsnachweis</span>
+            <span class="pos-unit">Stk</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>Position: 002.011
+Leistung: Plattendruckversuch zum Verdichtungsnachweis
+Einheit:  Stück (je Versuch)
+
+Verfahren:          Statischer Plattendruckversuch nach DIN 18134
+Nachweisführung:    Ev2 und Ev2/Ev1-Verhältnis
+
+Anforderungen:
+  Ev2     ≥ ___  MN/m²  (lt. LV / Planer)
+  Ev2/Ev1 ≤ 2,2  (Verdichtungsnachweis)
+
+Protokollinhalt: Datum, Ort, Schicht/Lage,
+Messwerte Ev1/Ev2/Ev2:Ev1, Gerätenummer,
+Unterschrift Prüfingenieur.
+
+Einheitspreise je Versuch inkl. An-/Abfahrt,
+Protokollerstellung und Übergabe an AG.</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OBERBODEN -->
+      <div class="stlb-block" id="stlb-oberboden">
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.020</span>
+            <span class="pos-title">Oberboden (Mutterboden) abtragen und lagern</span>
+            <span class="pos-unit">m³</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>Position: 002.020
+Leistung: Oberboden abtragen, zwischenlagern, rückeinbauen
+Einheit:  m³
+
+Abtragstiefe: ca. ___  cm (Humusschicht, vor Ort abstimmen)
+Lagerung: Mieten max. 2,0 m Höhe, keine Überfahrung.
+Keine Vermischung mit Unterboden.
+Lagerort: lt. Baustelleneinrichtungsplan.
+
+Rückeinbau (Rekultivierung): nach Fertigstellung lt. Pos. ___
+  Schichtdicke min. ___  cm
+  Feinplanie und Ansaaten: Pos. ___
+
+Norm: DIN 18915, DIN 18300
+
+Einheit: m³ abgefahren / m³ eingebaut (je nach Vereinbarung).
+Setzungen und Lockerungsmaß nicht enthaltener Nachtrag.</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENTSORGUNG -->
+      <div class="stlb-block" id="stlb-entsorgung">
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.030</span>
+            <span class="pos-title">Abtransport und Entsorgung – unbelastetes Bodenmaterial</span>
+            <span class="pos-unit">m³</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>Position: 002.030
+Leistung: Abtransport und Entsorgung Bodenmaterial (BM-0)
+Einheit:  m³  (gewogen oder berechnet)
+
+Klassifizierung:    ErsatzbaustoffV Klasse BM-0
+                    (Analyseergebnis liegt vor / ist beizubringen)
+
+Verwertungsweg:
+  ☐ Deponie DK 0: ___________________  (Entfernung ca. ___ km)
+  ☐ Bodenbörse / Rekultivierungsmaßnahme
+  ☐ Verwertung beim AG (Pos. ___)
+
+Enthaltene Leistungen: Laden, Transport, Kippen,
+Wiegenachweise, Lieferscheine (3-fach).
+
+Entsorgungsnachweis: Empfangsbestätigung der Entsorgungs-
+anlage dem AG zu übergeben.
+
+Einheit: t (nach Wiegekarte) oder m³ (nach Aufmaß × Wichte).</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.031</span>
+            <span class="pos-title">Entsorgung – belastetes Bodenmaterial (BM-F2/F3)</span>
+            <span class="pos-unit">t</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>Position: 002.031
+Leistung: Transport und Entsorgung kontaminierten Bodenmaterials
+Einheit:  t (Wiegekarte Entsorgungsanlage)
+
+Klassifizierung:  ErsatzbaustoffV BM-F2 / BM-F3
+                  (Analysebericht Nr. ___ liegt vor)
+
+Schadstoffparameter lt. Analyse:
+  PAK: ___  mg/kg TS
+  MKW: ___  mg/kg TS
+  Schwermetalle: ___
+  Sonstige: ___
+
+Entsorgungsanlage: ___________________  (Deponie DK ___ / Aufbereiter)
+Abfalleinstufung (AVV): ___________
+
+Enthaltene Leistungen: Laden, Abdecken, Transport,
+Übergabe an zugelassene Entsorgungsanlage,
+Entsorgungsnachweis nach NachweisVO.
+
+Nicht enthalten: Probenahme und Analytik (Pos. ___),
+Sonderbehandlung (thermisch/chemisch-physikalisch) (Pos. ___).</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SONDERLEISTUNGEN -->
+      <div class="stlb-block" id="stlb-sonderleis">
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.040</span>
+            <span class="pos-title">Bodenverbesserung mit Kalk / Zement</span>
+            <span class="pos-unit">m³</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>Position: 002.040
+Leistung: Bodenverbesserung durch Zugabe von Bindemittel
+Einheit:  m³ (behandelter Boden, eingebaut)
+
+Besondere Leistung nach DIN 18300 Abschn. 4.2.19.
+
+Bodenmaterial:    Homogenbereich EA ___
+                  Bodengruppe: ___ (z. B. TL / TM)
+Ausgangswassergehalt: w = ___ %
+
+Bindemittel:
+  ☐ Branntkalk (CaO): ___ kg/m³
+  ☐ Hydraulischer Kalk (z. B. NHL): ___ kg/m³
+  ☐ Zement: ___ kg/m³
+  ☐ Kombinationsmittel: ___
+
+Einbindetiefe / Lagendicke: ___ cm
+Einmischverfahren: ☐ Fräsen in-situ  ☐ Zentralmischer
+Wartezeit vor Verdichtung: ___ h (Reaktionszeit)
+Verdichtungsanforderung nach Behandlung: Ev2 ≥ ___ MN/m²
+
+Eignungsversuch vorab: ☐ ja  ☐ nein
+Bindemittelplan beizubringen: ☐ ja</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.041</span>
+            <span class="pos-title">Boden- und Aushubprobenahme / Analytik</span>
+            <span class="pos-unit">Psch / Pos</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>Position: 002.041
+Leistung: Probenahme und chemische Analyse von Bodenmaterial
+Einheit:  Pauschale je Beprobungsraster oder Einzelprobe
+
+Besondere Leistung DIN 18300 / ErsatzbaustoffV.
+
+Probenahmeraster: ca. ___ m × ___ m (oder Mischproben
+  je ___ m³ Aushubmenge)
+
+Analyseparameter (Standard):
+  PAK (EPA 16), MKW (KW-Index), BTEX, Schwermetalle
+  (As, Pb, Cd, Cr, Cu, Ni, Hg, Zn), pH-Wert, EOX
+
+Erweiterte Parameter bei Verdacht:
+  ☐ LHKW (chlorierte KW)
+  ☐ PCB
+  ☐ Dioxine / Furane
+  ☐ Asbest (Faseranalytik)
+
+Leistung: Probenahme durch akkreditiertes Labor,
+Transport, Analyse, Ergebnisbericht mit Bewertung
+nach ErsatzbaustoffV / LAGA M 20 / BBodSchV.</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+
+        <div class="stlb-pos">
+          <div class="stlb-pos-head" onclick="togglePos(this)">
+            <span class="oz">002.042</span>
+            <span class="pos-title">Bedenkenanzeige – Mustertext</span>
+            <span class="pos-unit">–</span>
+            <span class="pos-toggle">▼</span>
+          </div>
+          <div class="stlb-pos-body">
+            <pre>BEDENKENANZEIGE nach § 4 Abs. 3 VOB/B
+(Vorlage – an projektspezifische Angaben anpassen)
+
+An: _______________________ (Auftraggeber / Bauleitung)
+Von: ______________________ (Auftragnehmer / Bauleiter)
+Datum: ____________________
+Bauvorhaben: ______________
+Baustelle: ________________
+
+Betreff: Bedenkenanzeige – Abweichung der Bodenverhältnisse
+         von der Baubeschreibung / unerwartet belastetes Material
+
+Sehr geehrte Damen und Herren,
+
+gemäß § 4 Abs. 3 VOB/B zeigen wir folgende Bedenken an:
+
+1. Feststellung:
+   Am ___________, ca. _______ Uhr, Bereich ___________,
+   Tiefe _______ m u. GOK wurde festgestellt:
+   [ ] Abweichung Homogenbereich: Tatsächlich vorgefundene
+       Bodengruppe _______ weicht von Angabe _______ ab.
+   [ ] Unerwarteter Grundwasserandrang (GW bei ______ m u. GOK)
+   [ ] Verdacht auf Kontamination (Geruch / Verfärbung / ______)
+   [ ] Sonstiges: _________________________________________
+
+2. Maßnahmen:
+   Arbeiten in dem betroffenen Bereich wurden eingestellt.
+   Das Material wurde gesondert gelagert.
+   [ ] Behörde (Landratsamt ______) wurde informiert (Datum: ___)
+
+3. Folgen / geforderte Entscheidung:
+   Wir bitten um Ihre Weisung bis zum ___________ bezüglich:
+   [ ] Freigabe für weiteren Aushub nach Analyse
+   [ ] Beauftragung Analytik (Pos. ___)
+   [ ] Sonstiges: _____________________________________
+
+Wir behalten uns vor, durch diese Behinderung entstandene
+Mehrkosten nach § 2 Abs. 5/6 VOB/B geltend zu machen.
+
+Mit freundlichen Grüßen,
+______________________
+(Bauleiter / AN)</pre>
+            <button class="copy-btn" onclick="copyText(this)">📋 Text kopieren</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ ABLAUF ════ -->
+    <div class="panel" id="panel-ablauf">
+      <h1>Prozessablauf Erdarbeiten</h1>
+      <p class="panel-desc">Schematischer Ablauf von der Planung bis zum Abschluss – mit Normenbezug für jeden Schritt.</p>
+
+      <div class="card">
+        <div class="card-title">🔄 Vollständiger Prozessablauf</div>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-dot">📍</div>
+            <div class="flow-content">
+              <div class="flow-head">1. Planung – Baugrunderkundung</div>
+              <div class="flow-body">Geotechnische Untersuchung nach DIN 4020 · Einstufung in GK 1–3 · Erstellung Geotechnischer Bericht mit Homogenbereichen und Bodenkennwerten (DIN 18196, DIN EN ISO 14688) · Altlastenrecherche (BBodSchG §4)</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">📝</div>
+            <div class="flow-content">
+              <div class="flow-head">2. Ausschreibung</div>
+              <div class="flow-body">Leistungsbeschreibung nach StLB-Bau LB 002 · Homogenbereiche mit allen Pflicht-Kennwerten · Besondere Leistungen separat ausweisen · Entsorgungskonzept und Analytik als eigene Positionen</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">🤝</div>
+            <div class="flow-content">
+              <div class="flow-head">3. Vorbereitung Bauausführung</div>
+              <div class="flow-body">Gemeinsame Begehung AG + AN (DIN 18300 §3.2.1) · Leitungsauskünfte · Baustelleneinrichtung (Lagerflächen Bodenmaterial, getrennt nach Qualitäten) · Abstimmung Verdichtungsnachweis-Protokoll</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot warn">🌿</div>
+            <div class="flow-content">
+              <div class="flow-head">4. Oberboden abtragen</div>
+              <div class="flow-body">DIN 18915 · Separate Lagerung (max. 2 m Höhe, keine Verdichtung) · Keine Vermischung mit Unterboden · Dokumentation Abtragstiefe</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">⛏</div>
+            <div class="flow-content">
+              <div class="flow-head">5. Erdarbeiten – Lösen und Aushub</div>
+              <div class="flow-body">Gerätewahl AN (Unternehmerrisiko) · Beobachtung und Vergleich mit Homogenbereich-Angaben · Bei Abweichung sofort Bedenken (§4.3 VOB/B) · Getrennte Lagerung belastet / unbelastet · Bautagebuch</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">🧪</div>
+            <div class="flow-content">
+              <div class="flow-head">6. Bodenmaterial-Klassifizierung (wenn erforderlich)</div>
+              <div class="flow-body">Probenahme nach ErsatzbaustoffV / LAGA M 20 · Bestimmung Einbauklasse BM-0 bis BM-F3 · Bei Kontaminationsverdacht: Erweitertes Parameterpaket · Entsorgungsweg festlegen</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">🏗</div>
+            <div class="flow-content">
+              <div class="flow-head">7. Einbau und Verdichtung</div>
+              <div class="flow-body">Einbau in Lagen · Verdichtungsnachweis je Lage (DIN 18134, Ev2) · Keine Ausführung bei Frost · Kontrolle Wassergehalt · Protokollierung</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot warn">♻️</div>
+            <div class="flow-content">
+              <div class="flow-head">8. Entsorgung / Verwertung</div>
+              <div class="flow-body">Unbelastetes Material: Bodenbörse / Deponie DK 0 / Wiedereinbau · Belastetes Material: Deponie DK I–III / Aufbereitungsanlage · Nachweis gemäß NachweisVO · Wiegekarten sichern</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot">🌱</div>
+            <div class="flow-content">
+              <div class="flow-head">9. Rekultivierung / Oberboden-Rückbau</div>
+              <div class="flow-body">Oberboden nach DIN 18915 rückeinbauen · Vegetationsaufbau nach DIN 18916 · Baumschutzmaßnahmen rückbauen (DIN 18920) · Feinplanie</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-dot done">✅</div>
+            <div class="flow-content">
+              <div class="flow-head">10. Dokumentation & Abnahme</div>
+              <div class="flow-body">Vollständige Unterlagen: Verdichtungsprotokolle, Analyseergebnisse, Lieferscheine, Entsorgungsnachweise, Aufmaß · Abrechnung nach DIN 18300 §5 · Abnahme VOB/B §12</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  function toggle(li) {
+    li.classList.toggle('checked');
+    updateProgress();
+  }
+
+  function checkAll() {
+    document.querySelectorAll('.checklist li').forEach(li => li.classList.add('checked'));
+    updateProgress();
+  }
+
+  function uncheckAll() {
+    document.querySelectorAll('.checklist li').forEach(li => li.classList.remove('checked'));
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const all = document.querySelectorAll('.checklist li').length;
+    const done = document.querySelectorAll('.checklist li.checked').length;
+    const pct = all ? Math.round(done / all * 100) : 0;
+    document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('check-count').textContent = done + ' / ' + all + ' abgehakt (' + pct + '%)';
+  }
+
+  function stlbTab(id) {
+    document.querySelectorAll('.stlb-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.stlb-block').forEach(b => b.classList.remove('active'));
+    document.getElementById('stlb-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  function togglePos(head) {
+    const body = head.nextElementSibling;
+    const open = body.classList.toggle('open');
+    head.querySelector('.pos-toggle').textContent = open ? '▲' : '▼';
+  }
+
+  function copyText(btn) {
+    const pre = btn.previousElementSibling;
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+      btn.textContent = '✅ Kopiert!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Text kopieren'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
