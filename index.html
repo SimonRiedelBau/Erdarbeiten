@@ -360,6 +360,47 @@
     border-top: 1px solid var(--border);
     font-size: 11.5px; color: var(--text-muted); line-height: 1.6;
   }
+
+  /* ── KUBATUR-TOOL ── */
+  .kub-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .kub-canvas-wrap {
+    position: relative; width: 100%; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    overflow: hidden; touch-action: none; line-height: 0;
+  }
+  .kub-canvas-wrap canvas { display: block; cursor: crosshair; }
+  #kub-canvas3d { cursor: grab; }
+  #kub-canvas3d:active { cursor: grabbing; }
+  .kub-hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
+  .kub-input {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); border-radius: 4px; padding: 5px 7px; font-size: 12.5px; font-family: inherit;
+  }
+  .kub-input:focus { outline: none; border-color: var(--accent); }
+  .kub-del-btn {
+    width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border);
+    background: transparent; color: var(--red); cursor: pointer; font-size: 12px; line-height: 1;
+  }
+  .kub-del-btn:hover { border-color: var(--red); background: rgba(200,90,90,.12); }
+  .kub-param-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 14px; }
+  .kub-field label { display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+  .kub-field input, .kub-field select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 6px; padding: 8px 10px; font-size: 13.5px; font-family: inherit;
+  }
+  .kub-field input:focus, .kub-field select:focus { outline: none; border-color: var(--accent); }
+  .kub-slope-row { display: flex; align-items: center; gap: 12px; }
+  .kub-slope-row input[type=range] { flex: 1; accent-color: var(--accent); }
+  .kub-slope-readout { font-size: 13px; color: var(--text-dim); white-space: nowrap; }
+  .kub-slope-readout b { color: var(--accent2); font-size: 15px; }
+  .kub-preset-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .kub-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; }
+  .kub-stat { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
+  .kub-stat .label { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+  .kub-stat .value { font-size: 21px; font-weight: 700; color: var(--accent2); }
+  .kub-stat .sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .kub-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--text-muted); }
+  .kub-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
 </style>
 </head>
 <body>
@@ -472,6 +513,13 @@
         <span class="ico">🔄</span> Prozessablauf
       </button>
     </div>
+    <hr class="nav-divider">
+    <div class="nav-group">
+      <div class="nav-group-label">Werkzeuge</div>
+      <button class="nav-btn" onclick="show('kubatur'); kubOnShow()">
+        <span class="ico">🧊</span> Kubatur & 3D-Böschung
+      </button>
+    </div>
   </nav>
 
   <main>
@@ -511,6 +559,11 @@
           <div class="qico">🔄</div>
           <div class="qtitle">Prozessablauf</div>
           <div class="qdesc">Von der Baugrunderkundung bis zur Nachsorge</div>
+        </button>
+        <button class="quick-card" onclick="show('kubatur'); kubOnShow()">
+          <div class="qico">🧊</div>
+          <div class="qtitle">Kubatur & 3D-Böschung</div>
+          <div class="qdesc">Aushubvolumen aus Plan & Höhen, Neigung frei einstellbar</div>
         </button>
       </div>
 
@@ -1707,6 +1760,117 @@ ______________________
       </div>
     </div>
 
+    <!-- ════ KUBATUR ════ -->
+    <div class="panel" id="panel-kubatur">
+      <h1>Kubatur & 3D-Böschung</h1>
+      <p class="panel-desc">Aushub- oder Auftragsvolumen aus einem selbst digitalisierten 2D-Plan und Geländehöhen berechnen. Die Böschungsneigung lässt sich jederzeit nachträglich ändern – Kubatur und 3D-Modell aktualisieren sich sofort.</p>
+
+      <div class="card">
+        <div class="card-title">🖼 Plan digitalisieren <span class="badge">2D</span></div>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px">Optional ein Plan-Bild laden und die Eckpunkte direkt darauf anklicken, oder Punkte unten manuell in der Tabelle eingeben. Jeder Punkt braucht X/Y (Lage) und Z (Geländehöhe an dieser Stelle).</p>
+        <div class="kub-toolbar">
+          <label class="ctrl-btn" style="cursor:pointer">
+            🖼 Plan-Bild laden
+            <input type="file" accept="image/*" id="kub-file" style="display:none" onchange="kubLoadImage(event)">
+          </label>
+          <button class="ctrl-btn" onclick="kubStartCalibration()">📏 Maßstab kalibrieren</button>
+          <button class="ctrl-btn" onclick="kubLoadExample()">✨ Beispiel laden</button>
+          <button class="ctrl-btn" onclick="kubReset()">🗑 Alles zurücksetzen</button>
+        </div>
+        <div class="kub-canvas-wrap">
+          <canvas id="kub-canvas2d"></canvas>
+        </div>
+        <div class="kub-hint" id="kub-2d-hint">Klicken Sie in die Zeichenfläche, um Eckpunkte der Baugrube/des Damms hinzuzufügen (im Uhrzeigersinn oder gegen den Uhrzeigersinn). Vorhandene Punkte lassen sich per Ziehen verschieben.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Punkte (Lage & Geländehöhe)</div>
+        <div style="overflow-x:auto">
+          <table class="kw-table" id="kub-table">
+            <tr><th>#</th><th>X [m]</th><th>Y [m]</th><th>Z Gelände [m]</th><th></th></tr>
+          </table>
+        </div>
+        <button class="ctrl-btn" style="margin-top:10px" onclick="kubAddPointRow()">➕ Punkt hinzufügen</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚙️ Parameter</div>
+        <div class="kub-param-grid">
+          <div class="kub-field">
+            <label>Modus</label>
+            <select id="kub-mode" onchange="kubOnParamChange()">
+              <option value="aushub">Aushub (Baugrube)</option>
+              <option value="auftrag">Auftrag (Damm / Verfüllung)</option>
+            </select>
+          </div>
+          <div class="kub-field">
+            <label id="kub-targetz-label">Ziel-Sohlhöhe [m]</label>
+            <input type="number" id="kub-targetz" step="0.01" value="97" oninput="kubOnParamChange()">
+          </div>
+          <div class="kub-field">
+            <label>Zusätzlicher Arbeitsraum [m]</label>
+            <input type="number" id="kub-workspace" step="0.05" min="0" value="0" oninput="kubOnParamChange()">
+          </div>
+          <div class="kub-field">
+            <label>Auflockerungsfaktor (lose/fest)</label>
+            <input type="number" id="kub-bulk" step="0.01" min="1" value="1.15" oninput="kubOnParamChange()">
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">
+            Böschungsneigung – jederzeit nachträglich einstellbar
+          </label>
+          <div class="kub-slope-row">
+            <span class="kub-slope-readout">1 : <b id="kub-n-val">1.50</b></span>
+            <input type="range" id="kub-slope-range" min="0" max="3" step="0.05" value="1.5" oninput="kubOnSlopeSlide(this.value)">
+            <span class="kub-slope-readout"><b id="kub-deg-val">34°</b></span>
+          </div>
+          <div class="kub-preset-btns">
+            <button class="ctrl-btn" onclick="kubSetSlope(0.5)">1 : 0,5 (steil)</button>
+            <button class="ctrl-btn" onclick="kubSetSlope(1)">1 : 1</button>
+            <button class="ctrl-btn" onclick="kubSetSlope(1.5)">1 : 1,5</button>
+            <button class="ctrl-btn" onclick="kubSetSlope(2)">1 : 2</button>
+            <button class="ctrl-btn" onclick="kubSetSlope(3)">1 : 3 (flach)</button>
+          </div>
+        </div>
+
+        <div class="alert-box info" style="margin-top:14px">
+          <strong>Richtwerte Böschungswinkel ohne rechnerischen Standsicherheitsnachweis (DIN 4124):</strong>
+          Fels ca. 80°, steifer/halbfester bindiger Boden ca. 60° (≈ 1 : 0,6), nicht bindiger oder weicher bindiger Boden ≤ 45° (≈ 1 : 1). Verbindlich sind stets Baugrundgutachten und Standsicherheitsnachweis.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 Ergebnis Kubatur</div>
+        <div id="kub-empty-hint" class="kub-hint">Noch keine gültige Fläche – mindestens 3 Punkte eingeben.</div>
+        <div class="kub-stats-grid" id="kub-stats" style="display:none">
+          <div class="kub-stat"><div class="label" id="kub-lbl-au">Fläche Sohle</div><div class="value" id="kub-au">–</div><div class="sub">m²</div></div>
+          <div class="kub-stat"><div class="label" id="kub-lbl-ao">Fläche Geländeanschluss</div><div class="value" id="kub-ao">–</div><div class="sub">m²</div></div>
+          <div class="kub-stat"><div class="label" id="kub-lbl-h">mittlere Aushubtiefe</div><div class="value" id="kub-h">–</div><div class="sub">m</div></div>
+          <div class="kub-stat"><div class="label">Volumen (fest, Bank)</div><div class="value" id="kub-v">–</div><div class="sub">m³</div></div>
+          <div class="kub-stat"><div class="label">Volumen (lose, Transport)</div><div class="value" id="kub-vlose">–</div><div class="sub">m³ · für LKW-Kalkulation</div></div>
+        </div>
+        <div class="kub-hint" style="margin-top:10px">Berechnung nach Pyramidenstumpf-Formel: V = h/3 · (A<sub>Sohle</sub> + A<sub>Kante</sub> + √(A<sub>Sohle</sub> · A<sub>Kante</sub>)). Die Geländekante ergibt sich aus dem Sohlpolygon, das je Punkt um (Tiefe × Neigung) nach außen versetzt wird – ungleichmäßiges Gelände wird dabei je Eckpunkt einzeln berücksichtigt.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🧊 3D-Ansicht</div>
+        <div class="kub-toolbar">
+          <button class="ctrl-btn" onclick="kubResetView()">🎥 Ansicht zurücksetzen</button>
+          <span class="kub-hint" style="margin:0">Ziehen = drehen · Mausrad = zoomen</span>
+        </div>
+        <div class="kub-canvas-wrap">
+          <canvas id="kub-canvas3d"></canvas>
+        </div>
+        <div class="kub-legend">
+          <span><i style="background:#4a8fc8"></i> Sohle / Krone (Zielhöhe)</span>
+          <span><i style="background:#c8922a"></i> Böschung</span>
+          <span><i style="background:#5aad7a"></i> Geländeanschluss (vereinfacht)</span>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1764,6 +1928,616 @@ ______________________
   }
 
   updateProgress();
+
+  // ════════════════════════════════════════════════════════
+  // KUBATUR- & 3D-BÖSCHUNGS-TOOL
+  // ════════════════════════════════════════════════════════
+  const kub = {
+    points: [],
+    seq: 1,
+    mode: 'aushub',
+    targetZ: 97,
+    slopeN: 1.5,
+    workspace: 0,
+    bulk: 1.15,
+    result: null,
+    bg: { img: null, imgPos: null, ppm: null, originPx: null, calibrating: false, calibPts: [] },
+    cam: { yaw: -0.8, pitch: 0.45, dist: null, center: { x: 0, y: 0, z: 0 } },
+    dragTransform: null
+  };
+
+  function kubRound2(v) { return Math.round(v * 100) / 100; }
+  function kubCanvas2D() { return document.getElementById('kub-canvas2d'); }
+  function kubCanvas3D() { return document.getElementById('kub-canvas3d'); }
+
+  // ── Geometrie ──
+  function kubShoelace(poly) {
+    let s = 0;
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i], b = poly[(i + 1) % poly.length];
+      s += a.x * b.y - b.x * a.y;
+    }
+    return s / 2;
+  }
+
+  function kubLineIntersect(p1, d1, p2, d2) {
+    const denom = d1.x * d2.y - d1.y * d2.x;
+    if (Math.abs(denom) < 1e-9) return null;
+    const t = ((p2.x - p1.x) * d2.y - (p2.y - p1.y) * d2.x) / denom;
+    return { x: p1.x + d1.x * t, y: p1.y + d1.y * t };
+  }
+
+  // Polygon um (variable) Distanz je Kante nach außen versetzen (Miter-Offset)
+  function kubOffsetPolygon(poly, offsets) {
+    const n = poly.length;
+    const lines = [];
+    for (let i = 0; i < n; i++) {
+      const a = poly[i], b = poly[(i + 1) % n];
+      let dx = b.x - a.x, dy = b.y - a.y;
+      const len = Math.hypot(dx, dy) || 1;
+      dx /= len; dy /= len;
+      const nx = dy, ny = -dx; // Außennormale für CCW-Polygon
+      const d = offsets[i];
+      lines.push({ p: { x: a.x + nx * d, y: a.y + ny * d }, dir: { x: dx, y: dy } });
+    }
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const prev = lines[(i - 1 + n) % n];
+      const cur = lines[i];
+      const ip = kubLineIntersect(prev.p, prev.dir, cur.p, cur.dir);
+      out.push(ip || { x: poly[i].x, y: poly[i].y });
+    }
+    return out;
+  }
+
+  function kubCompute() {
+    const pts = kub.points;
+    if (pts.length < 3) { kub.result = null; return null; }
+    let ordered = pts.map(p => ({ x: p.x, y: p.y, z: p.z }));
+    if (kubShoelace(ordered) < 0) ordered.reverse();
+    const n = ordered.length;
+    const slope = Math.max(kub.slopeN, 0);
+    const depths = ordered.map(p => kub.mode === 'aushub' ? (p.z - kub.targetZ) : (kub.targetZ - p.z));
+    const edgeOffsets = [];
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const d = Math.max(0, (depths[i] + depths[j]) / 2) * slope + Math.max(0, kub.workspace);
+      edgeOffsets.push(d);
+    }
+    const outer = kubOffsetPolygon(ordered, edgeOffsets);
+    const A_u = Math.abs(kubShoelace(ordered));
+    const A_o = Math.abs(kubShoelace(outer));
+    const hMean = Math.max(0, depths.reduce((a, b) => a + b, 0) / n);
+    const V = hMean / 3 * (A_u + A_o + Math.sqrt(A_u * A_o));
+    kub.result = { ordered, outer, depths, A_u, A_o, hMean, V, Vloose: V * Math.max(1, kub.bulk) };
+    return kub.result;
+  }
+
+  // ── Punkteverwaltung ──
+  function kubAddPoint(x, y, z) {
+    const last = kub.points[kub.points.length - 1];
+    kub.points.push({
+      id: kub.seq++,
+      x: kubRound2(x),
+      y: kubRound2(y),
+      z: z != null ? kubRound2(z) : (last ? last.z : kub.targetZ)
+    });
+  }
+
+  function kubAddPointRow() {
+    const last = kub.points[kub.points.length - 1];
+    kubAddPoint(last ? last.x + 2 : 0, last ? last.y : 0, last ? last.z : kub.targetZ + 2);
+    kubRenderTable();
+    kubRecompute(true);
+  }
+
+  function kubRemovePoint(id) {
+    kub.points = kub.points.filter(p => p.id !== id);
+    kubRenderTable();
+    kubRecompute(true);
+  }
+
+  function kubUpdatePoint(id, field, value) {
+    const p = kub.points.find(p => p.id === id);
+    if (!p) return;
+    const v = parseFloat(value);
+    if (!isNaN(v)) p[field] = v;
+    kubRecompute(false);
+  }
+
+  function kubRenderTable() {
+    const table = document.getElementById('kub-table');
+    let html = '<tr><th>#</th><th>X [m]</th><th>Y [m]</th><th>Z Gelände [m]</th><th></th></tr>';
+    kub.points.forEach((p, i) => {
+      html += '<tr>' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td><input class="kub-input" type="number" step="0.01" value="' + p.x + '" oninput="kubUpdatePoint(' + p.id + ',\'x\',this.value)"></td>' +
+        '<td><input class="kub-input" type="number" step="0.01" value="' + p.y + '" oninput="kubUpdatePoint(' + p.id + ',\'y\',this.value)"></td>' +
+        '<td><input class="kub-input" type="number" step="0.01" value="' + p.z + '" oninput="kubUpdatePoint(' + p.id + ',\'z\',this.value)"></td>' +
+        '<td><button class="kub-del-btn" onclick="kubRemovePoint(' + p.id + ')" title="Punkt löschen">✕</button></td>' +
+        '</tr>';
+    });
+    table.innerHTML = html;
+  }
+
+  // ── Parameter ──
+  function kubOnParamChange() {
+    kub.mode = document.getElementById('kub-mode').value;
+    kub.targetZ = parseFloat(document.getElementById('kub-targetz').value) || 0;
+    kub.workspace = parseFloat(document.getElementById('kub-workspace').value) || 0;
+    kub.bulk = parseFloat(document.getElementById('kub-bulk').value) || 1;
+    document.getElementById('kub-targetz-label').textContent = kub.mode === 'aushub' ? 'Ziel-Sohlhöhe [m]' : 'Ziel-Kronenhöhe [m]';
+    kubRecompute(false);
+  }
+
+  function kubSetSlope(n) {
+    kub.slopeN = n;
+    document.getElementById('kub-slope-range').value = n;
+    kubUpdateSlopeReadout();
+    kubRecompute(false);
+  }
+
+  function kubOnSlopeSlide(v) {
+    kub.slopeN = parseFloat(v);
+    kubUpdateSlopeReadout();
+    kubRecompute(false);
+  }
+
+  function kubUpdateSlopeReadout() {
+    document.getElementById('kub-n-val').textContent = kub.slopeN.toFixed(2);
+    const deg = kub.slopeN > 0 ? Math.atan(1 / kub.slopeN) * 180 / Math.PI : 90;
+    document.getElementById('kub-deg-val').textContent = Math.round(deg) + '°';
+  }
+
+  // ── Ergebnis-Anzeige ──
+  function kubRenderResults() {
+    const res = kub.result;
+    const empty = document.getElementById('kub-empty-hint');
+    const grid = document.getElementById('kub-stats');
+    if (!res) { empty.style.display = 'block'; grid.style.display = 'none'; return; }
+    empty.style.display = 'none';
+    grid.style.display = 'grid';
+    const isAushub = kub.mode === 'aushub';
+    document.getElementById('kub-lbl-au').textContent = isAushub ? 'Fläche Sohle' : 'Fläche Krone';
+    document.getElementById('kub-lbl-h').textContent = isAushub ? 'mittlere Aushubtiefe' : 'mittlere Dammhöhe';
+    const fmt = (v, d) => v.toLocaleString('de-DE', { maximumFractionDigits: d, minimumFractionDigits: 0 });
+    document.getElementById('kub-au').textContent = fmt(res.A_u, 2);
+    document.getElementById('kub-ao').textContent = fmt(res.A_o, 2);
+    document.getElementById('kub-h').textContent = fmt(res.hMean, 2);
+    document.getElementById('kub-v').textContent = fmt(res.V, 1);
+    document.getElementById('kub-vlose').textContent = fmt(res.Vloose, 1);
+  }
+
+  function kubRecompute(refit) {
+    kubCompute();
+    kubRenderResults();
+    kubDraw2D();
+    if (refit || !kub.cam.dist) kubFitCamera();
+    kubDraw3D();
+  }
+
+  // ── 2D-Zeichenfläche ──
+  function kubEnsureCanvasSize(canvas, cssHeight) {
+    if (canvas.dataset.sized === '1') return;
+    const w = Math.max(300, Math.round((canvas.parentElement && canvas.parentElement.clientWidth) || 600));
+    canvas.width = w; canvas.height = cssHeight;
+    canvas.dataset.sized = '1';
+  }
+
+  function kubGetTransform(canvas) {
+    if (kub.bg.ppm) return { ppm: kub.bg.ppm, originPx: kub.bg.originPx };
+    const pts = kub.points;
+    const pad = 40;
+    if (pts.length === 0) return { ppm: 20, originPx: { x: canvas.width / 2, y: canvas.height / 2 } };
+    const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+    const w = Math.max(maxX - minX, 1), h = Math.max(maxY - minY, 1);
+    const ppm = Math.min((canvas.width - 2 * pad) / w, (canvas.height - 2 * pad) / h, 200);
+    const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+    return { ppm, originPx: { x: canvas.width / 2 - cx * ppm, y: canvas.height / 2 + cy * ppm } };
+  }
+
+  function kubW2C(x, y, canvas, t) {
+    t = t || kubGetTransform(canvas);
+    return { x: t.originPx.x + x * t.ppm, y: t.originPx.y - y * t.ppm };
+  }
+
+  function kubC2W(px, py, canvas, t) {
+    t = t || kubGetTransform(canvas);
+    return { x: (px - t.originPx.x) / t.ppm, y: -(py - t.originPx.y) / t.ppm };
+  }
+
+  function kubDraw2D() {
+    const canvas = kubCanvas2D();
+    kubEnsureCanvasSize(canvas, 420);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#2c3036';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (kub.bg.img && kub.bg.imgPos) {
+      ctx.globalAlpha = 0.85;
+      ctx.drawImage(kub.bg.img, kub.bg.imgPos.x, kub.bg.imgPos.y, kub.bg.imgPos.w, kub.bg.imgPos.h);
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for (let gx = 0; gx <= canvas.width; gx += 40) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, canvas.height); ctx.stroke(); }
+    for (let gy = 0; gy <= canvas.height; gy += 40) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(canvas.width, gy); ctx.stroke(); }
+
+    const res = kub.result;
+    if (res && res.outer.length > 2) {
+      ctx.beginPath();
+      res.outer.forEach((p, i) => {
+        const c = kubW2C(p.x, p.y, canvas);
+        i === 0 ? ctx.moveTo(c.x, c.y) : ctx.lineTo(c.x, c.y);
+      });
+      ctx.closePath();
+      ctx.strokeStyle = '#5aad7a'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    if (kub.points.length > 0) {
+      ctx.beginPath();
+      kub.points.forEach((p, i) => {
+        const c = kubW2C(p.x, p.y, canvas);
+        i === 0 ? ctx.moveTo(c.x, c.y) : ctx.lineTo(c.x, c.y);
+      });
+      if (kub.points.length > 2) ctx.closePath();
+      ctx.strokeStyle = '#c8922a'; ctx.lineWidth = 2; ctx.stroke();
+      if (kub.points.length > 2) { ctx.fillStyle = 'rgba(200,146,42,0.12)'; ctx.fill(); }
+    }
+
+    kub.points.forEach((p, i) => {
+      const c = kubW2C(p.x, p.y, canvas);
+      ctx.beginPath(); ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#e6b04a'; ctx.fill();
+      ctx.strokeStyle = '#1a1c1e'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#e8e4dc'; ctx.font = '11px sans-serif';
+      ctx.fillText(String(i + 1), c.x + 9, c.y - 8);
+    });
+
+    kub.bg.calibPts.forEach(pt => {
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#4a8fc8'; ctx.fill();
+    });
+  }
+
+  function kub2DEventPos(e, canvas) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) * (canvas.width / rect.width),
+      y: (e.clientY - rect.top) * (canvas.height / rect.height)
+    };
+  }
+
+  function kub2DHitPoint(px, py, canvas) {
+    for (let i = kub.points.length - 1; i >= 0; i--) {
+      const c = kubW2C(kub.points[i].x, kub.points[i].y, canvas);
+      if (Math.hypot(c.x - px, c.y - py) < 9) return kub.points[i];
+    }
+    return null;
+  }
+
+  let kub2DDragPoint = null;
+
+  function kub2DPointerDown(e) {
+    const canvas = kubCanvas2D();
+    const pos = kub2DEventPos(e, canvas);
+
+    if (kub.bg.calibrating) {
+      kub.bg.calibPts.push(pos);
+      if (kub.bg.calibPts.length === 2) {
+        const distStr = window.prompt('Realer Abstand zwischen den beiden angeklickten Punkten in Metern?', '10');
+        const distM = parseFloat(distStr);
+        if (distM > 0) {
+          const pxDist = Math.hypot(kub.bg.calibPts[1].x - kub.bg.calibPts[0].x, kub.bg.calibPts[1].y - kub.bg.calibPts[0].y);
+          kub.bg.ppm = pxDist / distM;
+          kub.bg.originPx = { x: kub.bg.calibPts[0].x, y: kub.bg.calibPts[0].y };
+          document.getElementById('kub-2d-hint').textContent = 'Maßstab kalibriert. Jetzt die Eckpunkte im Plan anklicken.';
+        } else {
+          document.getElementById('kub-2d-hint').textContent = 'Kalibrierung abgebrochen – ungültiger Wert.';
+        }
+        kub.bg.calibrating = false;
+        kub.bg.calibPts = [];
+      }
+      kubDraw2D();
+      return;
+    }
+
+    const hit = kub2DHitPoint(pos.x, pos.y, canvas);
+    if (hit) {
+      kub2DDragPoint = hit;
+      kub.dragTransform = kubGetTransform(canvas);
+      return;
+    }
+
+    const w = kubC2W(pos.x, pos.y, canvas);
+    kubAddPoint(w.x, w.y, null);
+    kubRenderTable();
+    kubRecompute(true);
+  }
+
+  function kub2DPointerMove(e) {
+    if (!kub2DDragPoint) return;
+    const canvas = kubCanvas2D();
+    const pos = kub2DEventPos(e, canvas);
+    const w = kubC2W(pos.x, pos.y, canvas, kub.dragTransform);
+    kub2DDragPoint.x = kubRound2(w.x);
+    kub2DDragPoint.y = kubRound2(w.y);
+    kubRenderTable();
+    kubRecompute(false);
+  }
+
+  function kub2DPointerUp() {
+    kub2DDragPoint = null;
+    kub.dragTransform = null;
+  }
+
+  function kubLoadImage(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      const img = new Image();
+      img.onload = function () {
+        kub.bg.img = img;
+        const canvas = kubCanvas2D();
+        kubEnsureCanvasSize(canvas, 420);
+        const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+        const w = img.width * scale, h = img.height * scale;
+        kub.bg.imgPos = { x: (canvas.width - w) / 2, y: (canvas.height - h) / 2, w, h };
+        document.getElementById('kub-2d-hint').textContent = 'Plan geladen. Jetzt Maßstab kalibrieren (📏), dann Eckpunkte anklicken.';
+        kubDraw2D();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function kubStartCalibration() {
+    if (!kub.bg.img) { alert('Bitte zuerst ein Plan-Bild laden.'); return; }
+    kub.bg.calibrating = true;
+    kub.bg.calibPts = [];
+    document.getElementById('kub-2d-hint').textContent = 'Kalibrierung: Zwei Punkte mit bekanntem realem Abstand im Plan anklicken.';
+  }
+
+  function kubReset() {
+    if (kub.points.length && !confirm('Alle Punkte, Bild und Kalibrierung zurücksetzen?')) return;
+    kub.points = [];
+    kub.bg = { img: null, imgPos: null, ppm: null, originPx: null, calibrating: false, calibPts: [] };
+    kub.cam.dist = null;
+    document.getElementById('kub-2d-hint').textContent = 'Klicken Sie in die Zeichenfläche, um Eckpunkte der Baugrube/des Damms hinzuzufügen. Vorhandene Punkte lassen sich per Ziehen verschieben.';
+    kubRenderTable();
+    kubRecompute(true);
+  }
+
+  function kubLoadExample() {
+    kub.points = [];
+    kub.bg = { img: null, imgPos: null, ppm: null, originPx: null, calibrating: false, calibPts: [] };
+    kub.mode = 'aushub';
+    kub.targetZ = 97.0;
+    kub.workspace = 0;
+    kub.bulk = 1.15;
+    [[0, 0, 100.2], [12, 0, 100.5], [12, 8, 100.1], [0, 8, 99.8]].forEach(([x, y, z]) => kubAddPoint(x, y, z));
+    document.getElementById('kub-mode').value = kub.mode;
+    document.getElementById('kub-targetz').value = kub.targetZ;
+    document.getElementById('kub-workspace').value = kub.workspace;
+    document.getElementById('kub-bulk').value = kub.bulk;
+    document.getElementById('kub-targetz-label').textContent = 'Ziel-Sohlhöhe [m]';
+    kub.cam.dist = null;
+    kubSetSlope(1.5);
+    kubRenderTable();
+    kubRecompute(true);
+  }
+
+  // ── 3D-Ansicht (eigener leichtgewichtiger Perspektiv-Renderer, ohne externe Bibliothek) ──
+  function kubVSub(a, b) { return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }; }
+  function kubVScale(a, s) { return { x: a.x * s, y: a.y * s, z: a.z * s }; }
+  function kubVDot(a, b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
+  function kubVCross(a, b) { return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x }; }
+  function kubVNorm(a) { const l = Math.hypot(a.x, a.y, a.z) || 1; return { x: a.x / l, y: a.y / l, z: a.z / l }; }
+
+  function kubFitCamera() {
+    const res = kub.result;
+    let pts3 = [];
+    if (res) {
+      res.ordered.forEach(p => pts3.push({ x: p.x, y: p.y, z: kub.targetZ }));
+      res.outer.forEach((p, i) => pts3.push({ x: p.x, y: p.y, z: res.ordered[i].z }));
+    } else {
+      kub.points.forEach(p => pts3.push({ x: p.x, y: p.y, z: p.z }));
+    }
+    if (pts3.length === 0) pts3 = [{ x: 0, y: 0, z: 0 }, { x: 10, y: 10, z: 2 }];
+    const xs = pts3.map(p => p.x), ys = pts3.map(p => p.y), zs = pts3.map(p => p.z);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2;
+    const span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), Math.max(...zs) - Math.min(...zs), 3);
+    kub.cam.center = { x: cx, y: cy, z: cz };
+    kub.cam.dist = span * 1.9;
+  }
+
+  function kubResetView() {
+    kub.cam.yaw = -0.8; kub.cam.pitch = 0.45;
+    kubFitCamera();
+    kubDraw3D();
+  }
+
+  function kubGetCam() {
+    const c = kub.cam;
+    const camPos = {
+      x: c.center.x + c.dist * Math.cos(c.pitch) * Math.cos(c.yaw),
+      y: c.center.y + c.dist * Math.cos(c.pitch) * Math.sin(c.yaw),
+      z: c.center.z + c.dist * Math.sin(c.pitch)
+    };
+    const forward = kubVNorm(kubVSub(c.center, camPos));
+    let right = kubVNorm(kubVCross(forward, { x: 0, y: 0, z: 1 }));
+    if (!isFinite(right.x) || (right.x === 0 && right.y === 0 && right.z === 0)) right = { x: 1, y: 0, z: 0 };
+    const up = kubVNorm(kubVCross(right, forward));
+    return { camPos, forward, right, up };
+  }
+
+  function kubProject(v, cam, canvas, focal) {
+    const rel = kubVSub(v, cam.camPos);
+    const cz = kubVDot(rel, cam.forward);
+    if (cz < 0.05) return null;
+    const cx = kubVDot(rel, cam.right);
+    const cy = kubVDot(rel, cam.up);
+    const s = focal / cz;
+    return { x: canvas.width / 2 + cx * s, y: canvas.height / 2 - cy * s };
+  }
+
+  function kubShadeColor(hex, factor) {
+    const n = parseInt(hex.slice(1), 16);
+    let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    r = Math.min(255, Math.max(0, Math.round(r * factor)));
+    g = Math.min(255, Math.max(0, Math.round(g * factor)));
+    b = Math.min(255, Math.max(0, Math.round(b * factor)));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+
+  function kubDraw3D() {
+    const canvas = kubCanvas3D();
+    kubEnsureCanvasSize(canvas, 440);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#23262b';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const res = kub.result;
+    if (!res) {
+      ctx.fillStyle = '#8d9099'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('Mindestens 3 Punkte für eine 3D-Ansicht eingeben.', canvas.width / 2, canvas.height / 2);
+      ctx.textAlign = 'left';
+      return;
+    }
+    if (!kub.cam.dist) kubFitCamera();
+    const cam = kubGetCam();
+    const focal = Math.min(canvas.width, canvas.height) * 0.9;
+
+    const n = res.ordered.length;
+    const ringA = res.ordered.map(p => ({ x: p.x, y: p.y, z: kub.targetZ }));
+    const ringB = res.outer.map((p, i) => ({ x: p.x, y: p.y, z: res.ordered[i].z }));
+
+    const allZ = ringA.concat(ringB).map(p => p.z);
+    const minZ = Math.min(...allZ), maxZ = Math.max(...allZ);
+    const xs = ringB.map(p => p.x), ys = ringB.map(p => p.y);
+    const gx0 = Math.min(...xs) - 2, gx1 = Math.max(...xs) + 2, gy0 = Math.min(...ys) - 2, gy1 = Math.max(...ys) + 2;
+    const gz = minZ - Math.max(0.3, (maxZ - minZ) * 0.15);
+    const gridLines = [];
+    const steps = 6;
+    for (let i = 0; i <= steps; i++) {
+      const gx = gx0 + (gx1 - gx0) * i / steps;
+      gridLines.push([{ x: gx, y: gy0, z: gz }, { x: gx, y: gy1, z: gz }]);
+      const gy = gy0 + (gy1 - gy0) * i / steps;
+      gridLines.push([{ x: gx0, y: gy, z: gz }, { x: gx1, y: gy, z: gz }]);
+    }
+
+    const faces = [];
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      faces.push({ verts: [ringA[i], ringA[j], ringB[j], ringB[i]], base: '#c8922a' });
+    }
+    faces.push({ verts: ringA.slice(), base: '#4a8fc8' });
+
+    const light = kubVNorm({ x: 0.4, y: -0.55, z: 0.75 });
+
+    const drawables = faces.map(f => {
+      const avgDepth = f.verts.reduce((s, v) => s + kubVDot(kubVSub(v, cam.camPos), cam.forward), 0) / f.verts.length;
+      return { f, avgDepth };
+    }).sort((a, b) => b.avgDepth - a.avgDepth);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    gridLines.forEach(([a, b]) => {
+      const pa = kubProject(a, cam, canvas, focal), pb = kubProject(b, cam, canvas, focal);
+      if (!pa || !pb) return;
+      ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+    });
+
+    drawables.forEach(({ f }) => {
+      const pts = f.verts.map(v => kubProject(v, cam, canvas, focal));
+      if (pts.some(p => !p)) return;
+      let normal = kubVNorm(kubVCross(kubVSub(f.verts[1], f.verts[0]), kubVSub(f.verts[2], f.verts[0])));
+      const toCam = kubVNorm(kubVSub(cam.camPos, f.verts[0]));
+      if (kubVDot(normal, toCam) < 0) normal = kubVScale(normal, -1);
+      const intensity = Math.min(1, Math.max(0.4, 0.45 + 0.6 * Math.max(0, kubVDot(normal, light))));
+      ctx.beginPath();
+      pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.closePath();
+      ctx.fillStyle = kubShadeColor(f.base, intensity);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Geländeanschluss als Konturlinie (kein Volumenkörper – Terrain zwischen den Punkten ist unbekannt)
+    ctx.beginPath();
+    ringB.forEach((v, i) => {
+      const p = kubProject(v, cam, canvas, focal);
+      if (!p) return;
+      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = '#5aad7a';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ringB.forEach(v => {
+      const p = kubProject(v, cam, canvas, focal);
+      if (!p) return;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#5aad7a'; ctx.fill();
+    });
+  }
+
+  let kub3DDrag = null;
+
+  function kub3DPointerDown(e) {
+    kub3DDrag = { x: e.clientX, y: e.clientY, yaw: kub.cam.yaw, pitch: kub.cam.pitch };
+    try { kubCanvas3D().setPointerCapture(e.pointerId); } catch (err) {}
+  }
+  function kub3DPointerMove(e) {
+    if (!kub3DDrag) return;
+    const dx = e.clientX - kub3DDrag.x, dy = e.clientY - kub3DDrag.y;
+    kub.cam.yaw = kub3DDrag.yaw + dx * 0.01;
+    kub.cam.pitch = Math.min(1.4, Math.max(-1.4, kub3DDrag.pitch - dy * 0.01));
+    kubDraw3D();
+  }
+  function kub3DPointerUp() { kub3DDrag = null; }
+  function kub3DWheel(e) {
+    e.preventDefault();
+    kub.cam.dist = Math.max(2, Math.min(500, kub.cam.dist * (1 + e.deltaY * 0.001)));
+    kubDraw3D();
+  }
+
+  function kubOnShow() {
+    const c2 = kubCanvas2D(), c3 = kubCanvas3D();
+    c2.dataset.sized = ''; c3.dataset.sized = '';
+    kubDraw2D();
+    if (!kub.cam.dist) kubFitCamera();
+    kubDraw3D();
+  }
+
+  function kubInit() {
+    kubRenderTable();
+    kubUpdateSlopeReadout();
+    document.getElementById('kub-mode').value = kub.mode;
+    document.getElementById('kub-targetz').value = kub.targetZ;
+    document.getElementById('kub-workspace').value = kub.workspace;
+    document.getElementById('kub-bulk').value = kub.bulk;
+
+    const c2 = kubCanvas2D();
+    c2.addEventListener('pointerdown', kub2DPointerDown);
+    c2.addEventListener('pointermove', kub2DPointerMove);
+    window.addEventListener('pointerup', kub2DPointerUp);
+
+    const c3 = kubCanvas3D();
+    c3.addEventListener('pointerdown', kub3DPointerDown);
+    c3.addEventListener('pointermove', kub3DPointerMove);
+    window.addEventListener('pointerup', kub3DPointerUp);
+    c3.addEventListener('wheel', kub3DWheel, { passive: false });
+
+    kubRecompute(true);
+  }
+
+  kubInit();
 
   // Apple Touch Icon: Radlader auf 180×180 Canvas zeichnen
   (function() {
